@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Image Envy Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@400;700;900&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#fdf0f4;--bg2:#fde8ef;--bg3:#fff5f8;--surface:#ffffff;--surface2:#fce4ec;--border:rgba(220,130,160,0.18);--border2:rgba(210,100,140,0.35);--gold:#c0547a;--gold2:#e8789a;--gold3:#8f2d50;--rose:#e891ac;--rose2:#f7c5d5;--cream:#2d1a22;--cream2:#5a3045;--text:#2d1a22;--text2:#9a5570;--text3:#c899ae;--purple:#d4608a;--purple2:#f0a0c0;}
+[data-theme="dark"]{--bg:#0a0806;--bg2:#130f0a;--bg3:#1c1510;--surface:#201a13;--surface2:#2a2118;--border:rgba(212,175,55,0.15);--border2:rgba(212,175,55,0.3);--gold:#D4AF37;--gold2:#f0d070;--gold3:#a8860f;--rose:#c9747a;--rose2:#f0b0b5;--cream:#f5ede0;--cream2:#c8b89a;--text:#f0e8d8;--text2:#a89878;--text3:#6a5840;--purple:#8b6bb5;--purple2:#c9a0e0;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);min-height:100vh;overflow-x:hidden;position:relative;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 15% 10%,rgba(255,182,210,0.35) 0%,transparent 60%),radial-gradient(ellipse 50% 60% at 85% 90%,rgba(240,150,185,0.2) 0%,transparent 60%);pointer-events:none;z-index:0;}
+[data-theme="dark"] body::before{background:radial-gradient(ellipse 70% 50% at 15% 10%,rgba(212,175,55,0.07) 0%,transparent 60%),radial-gradient(ellipse 50% 60% at 85% 90%,rgba(201,116,122,0.06) 0%,transparent 60%);}
+.theme-toggle{position:fixed;top:16px;right:16px;z-index:100;width:42px;height:42px;border-radius:50%;border:1px solid var(--border2);background:var(--surface);color:var(--gold);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,0.12);transition:all 0.2s;}
+.sticky-gen{position:fixed;bottom:0;left:0;right:0;padding:12px 16px;background:var(--surface);border-top:1px solid var(--border2);z-index:50;display:flex;gap:8px;}
+.page{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:60px 24px 100px;}
+header{text-align:center;margin-bottom:60px;}
+.header-eyebrow{font-size:0.65rem;letter-spacing:6px;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;justify-content:center;gap:14px;}
+.header-eyebrow::before,.header-eyebrow::after{content:'';flex:0 0 40px;height:1px;}
+.header-eyebrow::before{background:linear-gradient(90deg,transparent,var(--gold));}
+.header-eyebrow::after{background:linear-gradient(90deg,var(--gold),transparent);}
+h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,7vw,5rem);font-weight:900;line-height:1.05;background:linear-gradient(135deg,#c0547a 0%,#e8789a 35%,#f7c5d5 60%,#c0547a 100%);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 5s linear infinite;}
+@keyframes shimmer{0%{background-position:0%}100%{background-position:200%}}
+.subtitle{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.15rem;color:var(--text2);margin-top:14px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;margin-bottom:20px;position:relative;overflow:hidden;animation:fadeUp 0.5s ease both;box-shadow:0 2px 24px rgba(210,100,140,0.07);}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(220,130,160,0.6),transparent);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.card-title{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;color:var(--cream);margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;}
+.char-badge{display:inline-flex;align-items:center;gap:6px;font-size:0.62rem;letter-spacing:3px;text-transform:uppercase;font-weight:600;padding:5px 12px;border-radius:100px;margin-bottom:18px;}
+.badge-a{background:rgba(192,84,122,0.1);color:var(--gold3);border:1px solid rgba(192,84,122,0.3);}
+.badge-b{background:rgba(139,107,181,0.12);color:var(--purple2);border:1px solid rgba(139,107,181,0.3);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+@media(max-width:680px){.grid2,.grid3,.grid4{grid-template-columns:1fr 1fr;}}
+@media(max-width:440px){.grid2,.grid3,.grid4{grid-template-columns:1fr;}}
+.field-wrap{display:flex;flex-direction:column;gap:7px;}
+.field-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:2.5px;color:var(--gold);font-weight:600;}
+select,textarea,input[type=text]{background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.85rem;padding:11px 36px 11px 14px;width:100%;cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c0547a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;}
+select:focus,textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(192,84,122,0.12);}
+select:hover{border-color:var(--border2);}
+select option{background:var(--surface);color:var(--text);}
+textarea{background-image:none;padding:11px 14px;resize:vertical;line-height:1.6;}
+.range-wrap{display:flex;align-items:center;gap:12px;}
+input[type=range]{-webkit-appearance:none;flex:1;height:4px;background:var(--surface2);border-radius:2px;border:none;padding:0;background-image:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:50%;cursor:pointer;box-shadow:0 2px 8px rgba(192,84,122,0.35);}
+.range-val{font-size:0.85rem;font-weight:600;color:var(--gold);min-width:16px;text-align:center;}
+.cat-section{border-bottom:1px solid rgba(212,175,55,0.08);padding-bottom:16px;margin-bottom:16px;}
+.cat-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.cat-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+.cat-toggle .cat-label{font-size:0.72rem;text-transform:uppercase;letter-spacing:2px;color:var(--text2);font-weight:600;flex:1;transition:color 0.2s;}
+.cat-toggle:hover .cat-label{color:var(--cream);}
+.cat-toggle input[type=checkbox]{width:15px;height:15px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;}
+.chevron{width:14px;height:14px;color:var(--text3);transition:transform 0.25s;flex-shrink:0;}
+.chevron.open{transform:rotate(180deg);}
+.cat-body{max-height:0;overflow:hidden;transition:max-height 0.3s ease;}
+.cat-body.open{max-height:800px;}
+.pill-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.pill-grid label{font-size:0.73rem;color:var(--text2);background:var(--bg3);border:1px solid var(--border);border-radius:100px;padding:5px 11px;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;gap:5px;line-height:1;}
+.pill-grid label:hover{border-color:var(--border2);color:var(--text);}
+.pill-grid label:has(input:checked){background:rgba(192,84,122,0.1);border-color:var(--gold);color:var(--gold3);}
+.pill-grid input[type=checkbox]{width:11px;height:11px;accent-color:var(--gold);}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:28px 0;}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:28px;}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:15px 36px;border:none;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;background:linear-gradient(135deg,#8f2d50,#c0547a,#e8789a);color:#fff;box-shadow:0 6px 28px rgba(192,84,122,0.35);transition:transform 0.18s,box-shadow 0.18s;position:relative;overflow:hidden;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(192,84,122,0.45);}
+.btn-ghost{display:inline-flex;align-items:center;gap:7px;padding:13px 24px;border:1px solid var(--border2);border-radius:100px;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;background:rgba(192,84,122,0.07);color:var(--gold);transition:all 0.18s;}
+.btn-ghost:hover{background:rgba(192,84,122,0.15);border-color:var(--gold);}
+.btn-ghost.rose{border-color:rgba(220,130,160,0.35);color:var(--gold3);background:rgba(192,84,122,0.05);}
+.btn-ghost.rose:hover{background:rgba(192,84,122,0.12);border-color:var(--gold3);}
+.section-rand-btn{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:0.62rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;margin-left:auto;}
+.section-rand-btn:hover{border-color:var(--gold);color:var(--gold);}
+.lock-btn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:0.7rem;transition:all 0.15s;flex-shrink:0;margin-left:6px;color:var(--text3);}
+.lock-btn:hover{border-color:var(--gold);color:var(--gold);}
+.lock-btn.locked{background:rgba(192,84,122,0.12);border-color:rgba(192,84,122,0.4);color:var(--gold);}
+.lock-panel{display:none;}
+.variation-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;animation:fadeUp 0.4s ease both;}
+.variation-tag{font-size:0.58rem;letter-spacing:3px;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:10px;}
+.variation-text{font-family:'Cormorant Garamond',serif;font-size:0.95rem;line-height:1.8;color:var(--cream2);white-space:pre-wrap;}
+.variation-copy{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:rgba(192,84,122,0.06);color:var(--text2);font-size:0.7rem;font-family:'DM Sans',sans-serif;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.variation-copy:hover{border-color:var(--border2);color:var(--gold);}
+.variation-copy.copied{background:rgba(74,180,116,0.12);border-color:rgba(74,180,116,0.4);color:#5dd890;}
+.presets-wrap{display:flex;flex-direction:column;gap:10px;}
+.preset-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:6px;}
+.preset-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:100px;border:1px solid var(--border2);background:rgba(192,84,122,0.07);color:var(--gold3);font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all 0.18s;}
+.preset-chip:hover{background:rgba(192,84,122,0.15);}
+.preset-chip .del{font-size:0.75rem;color:var(--text3);cursor:pointer;}
+.preset-chip .del:hover{color:var(--rose);}
+.preset-save-row{display:flex;gap:8px;align-items:center;}
+.preset-input{flex:1;padding:9px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.82rem;background-image:none;}
+.preset-input:focus{outline:none;border-color:var(--gold);}
+.preset-input::placeholder{color:var(--text3);}
+.btn-save-preset{padding:9px 18px;border-radius:100px;border:1px solid var(--border2);background:rgba(192,84,122,0.08);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all 0.18s;}
+.btn-save-preset:hover{background:rgba(192,84,122,0.18);}
+.export-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.btn-export{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:100px;border:1px solid var(--border2);background:rgba(192,84,122,0.06);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:0.7rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all 0.18s;}
+.btn-export:hover{background:rgba(192,84,122,0.15);}
+.btn-import{border-color:rgba(192,84,122,0.2);color:var(--text2);}
+.no-presets,.no-history{font-size:0.78rem;color:var(--text3);font-style:italic;}
+.history-list{display:flex;flex-direction:column;gap:10px;}
+.history-item{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;transition:border-color 0.2s;}
+.history-item:hover{border-color:var(--border2);}
+.history-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+.history-time{font-size:0.62rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-weight:600;}
+.history-platform{font-size:0.62rem;color:var(--gold);letter-spacing:1px;text-transform:uppercase;font-weight:600;background:rgba(192,84,122,0.08);padding:2px 8px;border-radius:100px;border:1px solid var(--border);}
+.history-snippet{font-family:'Cormorant Garamond',serif;font-size:0.88rem;line-height:1.6;color:var(--cream2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.history-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.history-btn{padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:0.68rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;}
+.history-btn:hover{border-color:var(--gold);color:var(--gold);}
+.history-btn.del:hover{border-color:rgba(220,80,80,0.5);color:#e05555;}
+.neg-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.neg-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:100px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:0.71rem;font-weight:500;cursor:pointer;transition:all 0.18s;user-select:none;}
+.neg-chip:hover{border-color:rgba(220,80,80,0.4);color:#e05555;}
+.neg-chip.active{background:rgba(220,80,80,0.1);border-color:rgba(220,80,80,0.5);color:#e05555;}
+.prompt-variations{display:flex;flex-direction:column;gap:14px;margin-top:20px;}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid var(--gold);color:var(--gold);font-size:0.8rem;letter-spacing:1px;padding:10px 24px;border-radius:100px;font-family:'DM Sans',sans-serif;font-weight:600;text-transform:uppercase;transition:transform 0.3s ease;z-index:999;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.hidden{display:none!important;}
+.sparkles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.sparkle{position:absolute;width:2px;height:2px;border-radius:50%;background:var(--gold2);opacity:0;animation:twinkle var(--dur,3s) ease-in-out infinite var(--delay,0s);}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(0.5)}50%{opacity:0.6;transform:scale(2)}}
+@keyframes pillBounce{0%{transform:scale(1)}30%{transform:scale(1.18)}60%{transform:scale(0.95)}100%{transform:scale(1)}}
+@keyframes lockShake{0%,100%{transform:rotate(0deg)}20%{transform:rotate(-18deg)}40%{transform:rotate(18deg)}60%{transform:rotate(-10deg)}80%{transform:rotate(10deg)}}
+@keyframes lockPop{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+@keyframes btnRipple{0%{box-shadow:0 6px 28px rgba(192,84,122,0.35),0 0 0 0 rgba(192,84,122,0.4)}70%{box-shadow:0 6px 28px rgba(192,84,122,0.35),0 0 0 14px rgba(192,84,122,0)}100%{box-shadow:0 6px 28px rgba(192,84,122,0.35),0 0 0 0 rgba(192,84,122,0)}}
+@keyframes copyCheck{0%{transform:scale(0.7);opacity:0}50%{transform:scale(1.2);opacity:1}100%{transform:scale(1);opacity:1}}
+.pill-bounce{animation:pillBounce 0.32s cubic-bezier(0.36,0.07,0.19,0.97);}
+.lock-shake{animation:lockShake 0.35s ease;}
+.lock-pop{animation:lockPop 0.28s ease;}
+.btn-ripple{animation:btnRipple 0.6s ease;}
+.copy-check{animation:copyCheck 0.25s ease;}
+.cd-toggle-row{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;cursor:pointer;user-select:none;}
+.cd-toggle-badge{font-size:0.6rem;letter-spacing:3px;text-transform:uppercase;font-weight:700;padding:3px 10px;border-radius:100px;background:rgba(192,84,122,0.1);color:var(--gold3);border:1px solid var(--border2);}
+.cd-toggle-badge.on{background:rgba(212,175,55,0.15);color:var(--gold);border-color:var(--gold);}
+.cd-label{font-size:0.78rem;font-weight:600;color:var(--text);flex:1;}
+.cd-switch{position:relative;width:44px;height:24px;flex-shrink:0;}
+.cd-switch input{opacity:0;width:0;height:0;}
+.cd-slider{position:absolute;inset:0;border-radius:100px;background:var(--surface2);border:1px solid var(--border2);transition:all 0.25s;cursor:pointer;}
+.cd-slider::before{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:var(--text3);top:2px;left:2px;transition:all 0.25s;}
+.cd-switch input:checked + .cd-slider{background:var(--gold);border-color:var(--gold);}
+.cd-switch input:checked + .cd-slider::before{transform:translateX(20px);background:#fff;}
+.cd-options{max-height:0;overflow:hidden;transition:max-height 0.4s ease;}
+.cd-options.open{max-height:3000px;margin-top:12px;}
+.cd-collection-wrap{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+.cd-active-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;background:rgba(212,175,55,0.12);border:1px solid rgba(212,175,55,0.3);color:var(--gold);font-size:0.68rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-top:4px;}
+.cd-shots-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+@media(max-width:540px){.cd-shots-grid{grid-template-columns:1fr;}}
+.cd-shot-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px;position:relative;overflow:hidden;transition:border-color 0.2s;}
+.cd-shot-card:hover{border-color:var(--border2);}
+.cd-shot-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:12px 12px 0 0;background:linear-gradient(90deg,var(--gold),var(--gold2));}
+.cd-shot-num{font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:5px;}
+.cd-shot-name{font-family:'Playfair Display',serif;font-size:0.9rem;font-weight:700;color:var(--cream);margin-bottom:5px;}
+.cd-shot-desc{font-size:0.7rem;color:var(--text2);line-height:1.5;}
+.cd-shot-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;}
+.cd-shot-tag{font-size:0.58rem;padding:2px 8px;border-radius:100px;background:rgba(192,84,122,0.08);color:var(--text2);border:1px solid var(--border);}
+.cd-mix-section{margin-bottom:16px;}
+.cd-mix-label-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.cd-mix-toggle{font-size:0.7rem;color:var(--gold);cursor:pointer;text-decoration:underline;letter-spacing:1px;}
+.cd-mix-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media(max-width:540px){.cd-mix-grid{grid-template-columns:1fr;}}
+.cd-notes-wrap{margin-bottom:16px;}
+.cd-progress-wrap{margin-top:14px;padding:12px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;}
+.cd-progress-label{font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+.cd-progress-track{display:flex;gap:6px;}
+.cd-progress-dot{flex:1;height:6px;border-radius:3px;background:var(--surface2);transition:background 0.3s ease;}
+.cd-progress-dot.done{background:var(--gold);}
+.cd-complete-badge{display:none;align-items:center;gap:6px;padding:8px 16px;border-radius:100px;background:rgba(212,175,55,0.15);border:1px solid var(--gold);color:var(--gold);font-size:0.72rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-top:10px;}
+.cd-complete-badge.show{display:inline-flex;}
+@media(max-width:640px){.page{padding:20px 14px 100px;}.card{padding:20px 16px;}.grid2,.grid3,.grid4{grid-template-columns:1fr 1fr!important;gap:10px;}.btn-row{flex-direction:column;gap:8px;}.btn-primary,.btn-ghost{width:100%;justify-content:center;padding:14px;}.section-rand-btn{display:none;}.cd-shots-grid{grid-template-columns:1fr!important;}}
+@media(max-width:380px){.grid2,.grid3,.grid4{grid-template-columns:1fr!important;}}
+.cc-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:100px;border:1px solid rgba(212,175,55,0.3);background:rgba(212,175,55,0.08);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all 0.18s;user-select:none;}
+.cc-chip:hover{background:rgba(212,175,55,0.18);border-color:var(--gold);}
+.cc-chip.active{background:rgba(212,175,55,0.2);border-color:var(--gold);box-shadow:0 0 12px rgba(212,175,55,0.2);}
+.cc-chip .cc-del{font-size:0.75rem;color:var(--text3);cursor:pointer;margin-left:2px;}
+.cc-chip .cc-del:hover{color:var(--rose);}
+.squad-member{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;position:relative;}
+.squad-member-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.squad-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0;background:rgba(139,107,181,0.15);color:var(--purple2);border:1px solid rgba(139,107,181,0.3);}
+.squad-member-title{font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--text2);}
+.squad-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+@media(max-width:540px){.squad-grid{grid-template-columns:1fr 1fr;}}
+/* ═══ SHOWCASE GALLERY CSS — remove with showcase block to hide ═══ */
+.showcase-section{margin-bottom:48px;}
+.showcase-eyebrow{font-size:0.6rem;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin-bottom:10px;}
+.showcase-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--cream);text-align:center;margin-bottom:6px;}
+.showcase-sub{font-size:0.82rem;color:var(--text2);text-align:center;margin-bottom:24px;font-style:italic;font-family:'Cormorant Garamond',serif;}
+.showcase-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;}
+@media(max-width:600px){.showcase-grid{grid-template-columns:1fr 1fr;gap:10px;}}
+@media(max-width:380px){.showcase-grid{grid-template-columns:1fr;}}
+.showcase-card{position:relative;border-radius:16px;overflow:hidden;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;aspect-ratio:4/5;background:var(--surface2);}
+.showcase-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(192,84,122,0.25);}
+.showcase-img{width:100%;height:100%;object-fit:cover;display:block;}
+.showcase-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--bg2),var(--surface2));border:1px solid var(--border);}
+.showcase-placeholder-icon{font-size:2.5rem;opacity:0.5;}
+.showcase-placeholder-text{font-size:0.68rem;color:var(--text3);text-align:center;padding:0 12px;font-style:italic;}
+.showcase-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,8,6,0.95) 0%,rgba(10,8,6,0.3) 50%,transparent 100%);opacity:0;transition:opacity 0.25s;display:flex;flex-direction:column;justify-content:flex-end;padding:14px;}
+.showcase-card:hover .showcase-overlay{opacity:1;}
+.showcase-char-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px;}
+.showcase-char-desc{font-size:0.68rem;color:rgba(255,255,255,0.75);line-height:1.5;margin-bottom:8px;}
+.showcase-load-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:100px;background:rgba(192,84,122,0.9);border:none;color:#fff;font-size:0.65rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.showcase-badge{position:absolute;top:10px;left:10px;padding:3px 9px;border-radius:100px;background:rgba(10,8,6,0.7);backdrop-filter:blur(4px);color:var(--gold);font-size:0.58rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;border:1px solid rgba(212,175,55,0.3);}
+.showcase-upload-btn{position:absolute;bottom:10px;right:10px;width:32px;height:32px;border-radius:50%;background:rgba(10,8,6,0.75);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;z-index:5;}
+.showcase-upload-btn:hover{background:rgba(192,84,122,0.85);border-color:rgba(192,84,122,0.6);}
+.showcase-remove-btn{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;background:rgba(10,8,6,0.75);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);font-size:0.65rem;cursor:pointer;display:none;align-items:center;justify-content:center;transition:all 0.2s;z-index:5;}
+.showcase-card:hover .showcase-remove-btn{display:flex;}
+.showcase-remove-btn:hover{background:rgba(220,80,80,0.8);color:#fff;}
+/* ═══ END SHOWCASE GALLERY CSS ═══ */
+footer{text-align:center;margin-top:60px;}
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark/light mode">☀️</button>
+<div class="sticky-gen" id="stickyGen" style="display:none">
+  <button class="btn-primary" onclick="generate()" style="flex:1">✦ Generate</button>
+  <button class="btn-ghost" onclick="randomizeAll()">⟳</button>
+  <button class="btn-ghost" id="stickyMainCopyBtn" onclick="copyMainPrompt(this)" style="display:none;">⎘</button>
+</div>
+<div class="sparkles" id="sparkles"></div>
+<div class="page">
+  <header>
+    <div class="header-eyebrow">AI Image Prompt Studio</div>
+    <h1>Image Envy</h1>
+    <p class="subtitle">Craft your perfect AI character prompt</p>
+  </header>
+
+  <!-- ═══ SHOWCASE GALLERY — remove this entire block to hide ═══ -->
+  <div class="showcase-section" id="showcaseSection">
+    <div class="showcase-eyebrow">✦ Made with Image Envy ✦</div>
+    <div class="showcase-title">See What's Possible</div>
+    <div class="showcase-sub">Real characters built with this generator — click any card to load their settings</div>
+    <div class="showcase-grid" id="showcaseGrid"></div>
+  </div>
+  <!-- ═══ END SHOWCASE GALLERY ═══ -->
+
+  <!-- Global Settings -->
+  <div class="card" style="animation-delay:0.05s">
+    <div class="card-title"><span class="dot"></span> Global Settings</div>
+    <div class="grid3">
+      <div class="field-wrap"><label class="field-label">Mode</label><select id="mode"><option>Single Character</option><option>Double Character</option><option>Consistent Character</option><option>Squad</option></select></div>
+      <div class="field-wrap"><label class="field-label">Cartoon Type</label><select id="cartoonType"><option>signature exaggerated chibi</option><option>glossy 3d chibi</option><option>high gloss chibi</option><option>ultra airbrushed urban</option><option>luxury crochet amigurumi</option><option>hyper-real cartoon</option><option>soft spiritual glow</option><option>18k digital illustration</option><option>gouache mixed with watercolor</option><option>cai caricature hyper realistic illustration</option><option>bratz-inspired</option><option>hyper realistic bratz doll</option><option>chibi mixed with bratz</option><option>semi realism 4k bratz style</option><option>hand-drawn cartoon</option><option>anime style illustration</option><option>pixar 3d render</option><option>retro vintage cartoon</option><option>comic book style</option></select></div>
+      <div class="field-wrap"><label class="field-label">Art Finish</label><select id="artFinish"><option>ultra glossy</option><option>airbrushed</option><option>cinematic</option><option>matte soft</option><option>luxury editorial</option><option>vibrant polished</option><option>octane style</option><option>smooth shaded</option><option>soft glow</option><option>high detail</option></select></div>
+      <div class="field-wrap"><label class="field-label">Aspect Ratio</label><select id="aspectRatio"><option>1:1 square</option><option>4:5 portrait</option><option>9:16 vertical</option><option>16:9 landscape</option><option>3:4 portrait</option><option>2:3 poster</option></select></div>
+      <div class="field-wrap" style="grid-column:span 2"><label class="field-label">Variations: <span id="varVal">1</span></label><div class="range-wrap"><input type="range" id="variations" min="1" max="4" value="1"><span class="range-val" id="varDisplay">1</span></div></div>
+    </div>
+    <div id="sharedDoubleFields" class="hidden" style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
+      <div class="grid3">
+        <div class="field-wrap"><label class="field-label">Relationship</label><select id="relationship"><option>none</option><option>best friends</option><option>birthday duo</option><option>bride and bridesmaid</option><option>business partners</option><option>couple</option><option>father and daughter</option><option>mom and daughter</option><option>mother and son</option><option>podcast duo</option><option>sisters</option><option>twins</option></select></div>
+        <div class="field-wrap"><label class="field-label">Relationship Vibe</label><select id="relationshipVibe"><option>adventurous pair</option><option>best friends forever</option><option>complementary opposites</option><option>creative partners</option><option>in love</option><option>playful siblings</option><option>power duo</option><option>protective bond</option><option>supportive sisters</option><option>synchronized twins</option></select></div>
+        <div class="field-wrap"><label class="field-label">Coordination Style</label><select id="coordinationStyle"><option>color blocking pair</option><option>complementary tones</option><option>contrasting aesthetics</option><option>coordinated luxury</option><option>coordinated outfits</option><option>luxe vs street style</option><option>matching colors</option><option>mirrored poses</option><option>monochrome duo</option><option>one glam one casual</option><option>opposite aesthetics</option><option>streetwear duo</option></select></div>
+        <div class="field-wrap"><label class="field-label">🤝 Interaction Type</label><select id="interactionType"><option>none — standing near each other</option><option>making direct eye contact with each other</option><option>laughing together mid-moment</option><option>one whispering to the other</option><option>back to back looking away</option><option>one helping the other</option><option>mid-conversation gesturing</option><option>one looking at the other admiringly</option><option>high-fiving or celebrating</option><option>hugging warmly</option><option>holding hands</option><option>leaning on each other</option><option>one protecting the other</option><option>posing together intentionally</option><option>both looking at camera together</option><option>candid caught-off-guard moment</option></select></div>
+        <div class="field-wrap"><label class="field-label">Height Dynamic</label><select id="heightDynamic"><option>same height</option><option>Character A slightly taller</option><option>Character B slightly taller</option><option>significant height difference A taller</option><option>significant height difference B taller</option></select></div>
+        <div class="field-wrap"><label class="field-label">Scene Focus</label><select id="sceneFocus"><option>equal focus both characters</option><option>Character A is primary focus</option><option>Character B is primary focus</option><option>Character B slightly behind A</option><option>Character A slightly behind B</option></select></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Consistent Character DNA Panel -->
+  <div class="card hidden" id="ccPanel" style="animation-delay:0.08s;border-color:rgba(212,175,55,0.3);background:linear-gradient(135deg,var(--surface),var(--bg2));">
+    <div class="card-title"><span class="dot" style="background:var(--gold)"></span> 🧬 Character DNA Lock <span style="font-size:0.62rem;color:var(--gold);font-family:'DM Sans',sans-serif;font-weight:600;margin-left:8px;padding:3px 10px;background:rgba(212,175,55,0.12);border:1px solid rgba(212,175,55,0.3);border-radius:100px;letter-spacing:1px">ACTIVE</span></div>
+    <p style="font-size:0.75rem;color:var(--text2);margin-bottom:16px;line-height:1.6;">Build your character below, save their DNA, and every prompt will carry their full identity automatically — keeping the same character consistent across every generation.</p>
+
+    <!-- Saved DNA profiles -->
+    <div style="margin-bottom:16px">
+      <div class="field-label" style="margin-bottom:10px">Saved Characters</div>
+      <div id="ccProfiles" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px"><span style="font-size:0.75rem;color:var(--text3);font-style:italic">No saved characters yet — fill in the fields below and save.</span></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input type="text" id="ccName" placeholder="Character name (e.g. Nova, Milan, The CEO)..." maxlength="30" style="flex:1;padding:9px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.82rem;background-image:none"/>
+        <button onclick="saveCCProfile()" style="padding:9px 18px;border-radius:100px;border:1px solid rgba(212,175,55,0.4);background:rgba(212,175,55,0.1);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;white-space:nowrap">💾 Save DNA</button>
+      </div>
+    </div>
+
+    <!-- Active DNA summary -->
+    <div id="ccActiveDNA" class="hidden" style="padding:14px;background:rgba(212,175,55,0.06);border:1px solid rgba(212,175,55,0.25);border-radius:12px">
+      <div style="font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:8px">🔒 Active Character DNA — locked into every prompt</div>
+      <div id="ccActiveSummary" style="font-size:0.78rem;color:var(--cream2);line-height:1.7;font-family:'Cormorant Garamond',serif;font-style:italic"></div>
+      <button onclick="clearActiveDNA()" style="margin-top:10px;padding:5px 12px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:0.68rem;font-family:'DM Sans',sans-serif;cursor:pointer;letter-spacing:1px;text-transform:uppercase">✕ Clear Lock</button>
+    </div>
+  </div>
+
+  <!-- Squad Mode Panel -->
+  <div class="card hidden" id="squadPanel" style="animation-delay:0.08s;border-color:rgba(139,107,181,0.3);">
+    <div class="card-title"><span class="dot" style="background:var(--purple2)"></span> 👥 Squad Builder <span style="font-size:0.62rem;color:var(--purple2);font-family:'DM Sans',sans-serif;font-weight:600;margin-left:8px;padding:3px 10px;background:rgba(139,107,181,0.1);border:1px solid rgba(139,107,181,0.3);border-radius:100px;letter-spacing:1px">GROUP MODE</span></div>
+    <p style="font-size:0.75rem;color:var(--text2);margin-bottom:18px;line-height:1.6;">Build a squad of 2–6 characters sharing the same scene. Set each character's key details below — the scene, lighting, and art style come from the sections further down.</p>
+
+    <!-- Squad size -->
+    <div class="field-wrap" style="margin-bottom:20px">
+      <label class="field-label">Squad Size: <span id="squadSizeVal">3</span> characters</label>
+      <div class="range-wrap">
+        <input type="range" id="squadSize" min="2" max="6" value="3" oninput="updateSquadSize(this.value)">
+        <span class="range-val" id="squadSizeDisplay">3</span>
+      </div>
+    </div>
+
+    <!-- Squad composition -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <div class="field-label">Squad Composition</div>
+      <button onclick="randomizeSquad()" style="padding:6px 16px;border-radius:100px;border:1px solid var(--border2);background:rgba(139,107,181,0.08);color:var(--purple2);font-family:'DM Sans',sans-serif;font-size:0.68rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all 0.18s;">⟳ Random Squad</button>
+    </div>
+    <div id="squadMembers" style="display:flex;flex-direction:column;gap:14px;"></div>
+
+    <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border)">
+      <div class="grid3" style="margin-bottom:12px">
+        <div class="field-wrap">
+          <label class="field-label">Arrangement</label>
+          <select id="squadArrangement">
+            <option>grouped together closely</option>
+            <option>huddled together</option>
+            <option>in a V formation</option>
+            <option>scattered casually</option>
+            <option>sitting together</option>
+            <option>staggered depth formation</option>
+            <option>standing in a row</option>
+            <option>standing side by side</option>
+          </select>
+        </div>
+        <div class="field-wrap">
+          <label class="field-label">Squad Vibe</label>
+          <select id="squadVibe">
+            <option>best friends forever</option>
+            <option>birthday squad</option>
+            <option>boss squad</option>
+            <option>business team</option>
+            <option>content creator crew</option>
+            <option>dance crew</option>
+            <option>family portrait</option>
+            <option>girls trip</option>
+            <option>graduation day</option>
+            <option>matching aesthetic</option>
+            <option>sports team</option>
+            <option>wedding party</option>
+          </select>
+        </div>
+        <div class="field-wrap">
+          <label class="field-label">Coordination</label>
+          <select id="squadCoord">
+            <option>color blocking</option>
+            <option>complementary tones</option>
+            <option>coordinated outfits</option>
+            <option>each unique personal style</option>
+            <option>matching accessories only</option>
+            <option>matching colors</option>
+            <option>monochrome squad</option>
+            <option>same aesthetic different fits</option>
+          </select>
+        </div>
+        <div class="field-wrap">
+          <label class="field-label">👑 Outfit Theme</label>
+          <select id="squadOutfitTheme">
+            <option>none — individual outfits</option>
+            <option>all in graduation caps and gowns</option>
+            <option>all in matching swimwear</option>
+            <option>all in formal wear</option>
+            <option>all in matching jerseys with numbers</option>
+            <option>all in holiday outfits</option>
+            <option>all in matching pajamas</option>
+            <option>all in athletic gear</option>
+            <option>all in business suits</option>
+            <option>all in matching robes</option>
+            <option>all in wedding attire</option>
+            <option>all in matching hoodies</option>
+            <option>all in color-coordinated dresses</option>
+            <option>all in matching cultural attire</option>
+            <option>all in matching costume</option>
+          </select>
+        </div>
+        <div class="field-wrap">
+          <label class="field-label">⭐ Squad Leader</label>
+          <select id="squadLeader">
+            <option>none — equal focus</option>
+            <option>Character 1 is the focal point</option>
+            <option>Character 2 is the focal point</option>
+            <option>Character 3 is the focal point</option>
+            <option>Character 4 is the focal point</option>
+            <option>Character 5 is the focal point</option>
+            <option>Character 6 is the focal point</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Character A Identity -->
+  <div class="card" style="animation-delay:0.1s">
+    <div class="char-badge badge-a hidden" id="badgeA_identity">✦ Character A</div>
+    <div class="card-title"><span class="dot"></span> Identity</div>
+    <div class="grid4">
+      <div class="field-wrap"><label class="field-label">Gender</label><select id="genderA" onchange="buildCharSections('A')"><option>female</option><option>male</option></select></div>
+      <div class="field-wrap"><label class="field-label">Ethnicity</label><select id="ethnicityA"><option>Black</option><option>White</option><option>Latina</option><option>Asian</option><option>Mixed Race</option><option>Middle Eastern</option><option>Indigenous</option><option>South Asian</option></select></div>
+      <div class="field-wrap"><label class="field-label">Skin Tone</label><select id="skinA"><option>porcelain</option><option>fair</option><option>beige</option><option>olive</option><option>caramel</option><option>mocha</option><option>deep brown</option><option>espresso</option></select></div>
+      <div class="field-wrap"><label class="field-label">Age Group</label><select id="ageA"><option>child</option><option>teen</option><option>young adult</option><option>adult</option></select></div>
+      <div class="field-wrap"><label class="field-label">Height</label><select id="heightA"><option>short</option><option>average</option><option>tall</option></select></div>
+      <div class="field-wrap"><label class="field-label">Body Type</label><select id="bodyA"><option>slim</option><option>petite</option><option>curvy</option><option>thick</option><option>plus size</option><option>athletic</option><option>muscular</option></select></div>
+      <div class="field-wrap"><label class="field-label">Eye Color</label><select id="eyeA"><option>brown</option><option>hazel</option><option>green</option><option>gray</option><option>blue</option><option>amber</option></select></div>
+      <div class="field-wrap"><label class="field-label">Expression</label><select id="expressionA"><option>smiling</option><option>confident</option><option>playful</option><option>serious</option><option>soft glam</option><option>surprised</option><option>seductive</option><option>angry</option></select></div>
+    </div>
+    <div style="margin-top:16px"><label class="field-label" style="margin-bottom:7px;display:block">Custom Override (optional)</label><textarea id="customA" rows="2" placeholder="Override entire character A description..."></textarea></div>
+    <div style="margin-top:12px"><label class="field-label" style="margin-bottom:7px;display:block">✍️ Character Backstory / Narrative Context (optional)</label><textarea id="backstoryA" rows="2" placeholder="e.g. She just got promoted and is celebrating alone. She walked into the room and owns it. The main character in her own story..."></textarea></div>
+  </div>
+
+  <!-- Character A Appearance -->
+  <div class="card" style="animation-delay:0.15s">
+    <div class="char-badge badge-a hidden" id="badgeA_appearance">✦ Character A</div>
+    <div class="card-title"><span class="dot"></span> Appearance & Glam <button class="section-rand-btn" onclick="randSection(appearanceCats,appearanceCatsMale,'A')">⟳ Randomize</button></div>
+    <div id="appearanceFields_A"></div>
+  </div>
+
+  <!-- Character A Outfit -->
+  <div class="card" style="animation-delay:0.18s">
+    <div class="char-badge badge-a hidden" id="badgeA_outfit">✦ Character A</div>
+    <div class="card-title"><span class="dot"></span> Outfit & Accessories <button class="section-rand-btn" onclick="randSection(outfitCats,outfitCatsMale,'A')">⟳ Randomize</button></div>
+    <div id="outfitFields_A"></div>
+  </div>
+
+  <!-- Character A Pose -->
+  <div class="card" style="animation-delay:0.21s">
+    <div class="char-badge badge-a hidden" id="badgeA_pose">✦ Character A</div>
+    <div class="card-title"><span class="dot"></span> Pose <button class="section-rand-btn" onclick="randSection(poseCats,poseCats,'A')">⟳ Randomize</button></div>
+    <div id="poseFields_A"></div>
+  </div>
+
+  <!-- Character B Identity -->
+  <div class="card hidden" id="charBSection">
+    <div class="char-badge badge-b">✦ Character B</div>
+    <div class="card-title"><span class="dot" style="background:var(--purple2)"></span> Identity</div>
+    <div class="grid4">
+      <div class="field-wrap"><label class="field-label">Gender</label><select id="genderB" onchange="if($('mode').value==='Double Character')buildCharSections('B')"><option>female</option><option>male</option></select></div>
+      <div class="field-wrap"><label class="field-label">Ethnicity</label><select id="ethnicityB"><option>Black</option><option>White</option><option>Latina</option><option>Asian</option><option>Mixed Race</option><option>Middle Eastern</option><option>Indigenous</option><option>South Asian</option></select></div>
+      <div class="field-wrap"><label class="field-label">Skin Tone</label><select id="skinB"><option>porcelain</option><option>fair</option><option>beige</option><option>olive</option><option>caramel</option><option>mocha</option><option>deep brown</option><option>espresso</option></select></div>
+      <div class="field-wrap"><label class="field-label">Age Group</label><select id="ageB"><option>child</option><option>teen</option><option>young adult</option><option>adult</option></select></div>
+      <div class="field-wrap"><label class="field-label">Height</label><select id="heightB"><option>short</option><option>average</option><option>tall</option></select></div>
+      <div class="field-wrap"><label class="field-label">Body Type</label><select id="bodyB"><option>slim</option><option>petite</option><option>curvy</option><option>thick</option><option>plus size</option><option>athletic</option><option>muscular</option></select></div>
+      <div class="field-wrap"><label class="field-label">Eye Color</label><select id="eyeB"><option>brown</option><option>hazel</option><option>green</option><option>gray</option><option>blue</option><option>amber</option></select></div>
+      <div class="field-wrap"><label class="field-label">Expression</label><select id="expressionB"><option>smiling</option><option>confident</option><option>playful</option><option>serious</option><option>soft glam</option><option>surprised</option><option>seductive</option><option>angry</option></select></div>
+    </div>
+    <div style="margin-top:16px"><label class="field-label" style="margin-bottom:7px;display:block">Custom Override (optional)</label><textarea id="customB" rows="2" placeholder="Override entire character B description..."></textarea></div>
+  </div>
+  <div class="card hidden" id="appearanceBSection"><div class="char-badge badge-b">✦ Character B</div><div class="card-title"><span class="dot" style="background:var(--purple2)"></span> Appearance & Glam</div><div id="appearanceFields_B"></div></div>
+  <div class="card hidden" id="outfitBSection"><div class="char-badge badge-b">✦ Character B</div><div class="card-title"><span class="dot" style="background:var(--purple2)"></span> Outfit & Accessories</div><div id="outfitFields_B"></div></div>
+  <div class="card hidden" id="poseBSection"><div class="char-badge badge-b">✦ Character B</div><div class="card-title"><span class="dot" style="background:var(--purple2)"></span> Pose</div><div id="poseFields_B"></div></div>
+
+  <!-- Creative Director Mode -->
+  <div class="card" style="animation-delay:0.35s">
+    <div class="card-title"><span class="dot" style="background:var(--gold2)"></span> Creative Director Mode</div>
+    <div class="cd-toggle-row" onclick="toggleCDMode()">
+      <div><div class="cd-label">🎬 Creative Director Mode</div><div style="font-size:0.7rem;color:var(--text3);margin-top:3px;">AI Creative Director — plans your entire 4-image collection</div></div>
+      <label class="cd-switch" onclick="event.stopPropagation()"><input type="checkbox" id="cdToggle" onchange="toggleCDMode()"><span class="cd-slider"></span></label>
+      <span class="cd-toggle-badge" id="cdBadge">OFF</span>
+    </div>
+    <div class="cd-options" id="cdOptions">
+      <div class="cd-collection-wrap">
+        <div style="margin-bottom:10px"><div class="field-label" style="margin-bottom:8px">Filter by type</div><div id="cdTagFilter" style="display:flex;flex-wrap:wrap;gap:0"></div></div>
+        <div class="field-wrap"><label class="field-label">Collection Type</label>
+          <select id="cdCollectionType" onchange="updateCDPlan()">
+            <option value="editorial">Editorial Photoshoot (Fashion)</option>
+            <option value="brand">Brand Photoshoot (Business)</option>
+            <option value="evolution">Character Evolution (Story)</option>
+            <option value="social">Social Media Pack (Creator)</option>
+            <option value="lookbook">Fashion Lookbook (Fashion)</option>
+            <option value="sticker">Sticker Pack (Fun)</option>
+            <option value="childrens">Children's Book Character (Kids)</option>
+            <option value="anniversary">Anniversary / Milestone (Personal)</option>
+            <option value="seasonal">Seasonal Drop (Fashion)</option>
+            <option value="moodboard">Mood Board Series (Creative)</option>
+            <option value="musicvideo">Music Video Concept (Creator)</option>
+            <option value="launch">Business Launch Pack (Business)</option>
+            <option value="dating">Dating App Pack (Personal)</option>
+            <option value="fitness">Fitness / Wellness (Health)</option>
+          </select>
+        </div>
+        <div class="cd-active-badge" id="cdActiveBadge">✦ Editorial Photoshoot — 4 coordinated shots</div>
+      </div>
+      <div style="margin-bottom:8px"><div class="field-label" style="margin-bottom:10px">📋 Shot Plan</div><div class="cd-shots-grid" id="cdShotsGrid"></div></div>
+      <div class="cd-mix-section">
+        <div class="cd-mix-label-row"><span class="field-label" style="margin:0">🎛 Custom Shot Mix</span><span class="cd-mix-toggle" onclick="toggleCDMix()">Customize →</span></div>
+        <div id="cdMixPanel" style="display:none"><p style="font-size:0.7rem;color:var(--text3);font-style:italic;margin-bottom:10px">Override the shot type for each variation slot.</p><div class="cd-mix-grid" id="cdMixGrid"></div></div>
+      </div>
+      <div class="cd-notes-wrap"><label class="field-label" style="margin-bottom:7px;display:block">📝 Collection Vision Notes (optional)</label><textarea id="cdNotes" rows="2" placeholder="Describe your overall vision..."></textarea></div>
+
+      <!-- Per-shot director's notes -->
+      <div style="margin-bottom:16px">
+        <div class="field-label" style="margin-bottom:10px">🎬 Per-Shot Director's Notes (optional)</div>
+        <div style="display:flex;flex-direction:column;gap:8px" id="cdShotNotes">
+          <div style="display:flex;gap:8px;align-items:center"><span style="font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:600;min-width:52px">Shot 1</span><input type="text" id="cdNote_0" placeholder="e.g. She just heard great news, pure joy..." style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.78rem;background-image:none"/></div>
+          <div style="display:flex;gap:8px;align-items:center"><span style="font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:600;min-width:52px">Shot 2</span><input type="text" id="cdNote_1" placeholder="e.g. Think Rihanna Fenty campaign energy..." style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.78rem;background-image:none"/></div>
+          <div style="display:flex;gap:8px;align-items:center"><span style="font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:600;min-width:52px">Shot 3</span><input type="text" id="cdNote_2" placeholder="e.g. This should feel like a luxury perfume ad..." style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.78rem;background-image:none"/></div>
+          <div style="display:flex;gap:8px;align-items:center"><span style="font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:600;min-width:52px">Shot 4</span><input type="text" id="cdNote_3" placeholder="e.g. The final frame — make it legendary..." style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.78rem;background-image:none"/></div>
+        </div>
+      </div>
+      <div class="cd-progress-wrap">
+        <div class="cd-progress-label"><span>Collection Progress</span><span id="cdProgressText">0 of 4 shots generated</span></div>
+        <div class="cd-progress-track"><div class="cd-progress-dot" id="cdDot0"></div><div class="cd-progress-dot" id="cdDot1"></div><div class="cd-progress-dot" id="cdDot2"></div><div class="cd-progress-dot" id="cdDot3"></div></div>
+        <div class="cd-complete-badge" id="cdCompleteBadge">✦ Collection Complete</div>
+        <button class="btn-ghost" style="margin-top:10px;font-size:0.68rem;padding:6px 14px" onclick="resetCDProgress()">↺ Reset Progress</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scene & Composition -->
+  <div class="card" style="animation-delay:0.36s">
+    <div class="card-title"><span class="dot"></span> Scene & Composition</div>
+    <div id="sceneFields"></div>
+  </div>
+
+  <!-- Quality -->
+  <div class="card" style="animation-delay:0.39s">
+    <div class="card-title"><span class="dot"></span> Quality & Framing</div>
+    <div id="qualityFields"></div>
+  </div>
+
+  <!-- Negative Prompt -->
+  <div class="card" style="animation-delay:0.42s">
+    <div class="card-title"><span class="dot" style="background:var(--rose)"></span> Negative Prompt</div>
+    <div class="neg-chips" id="negChips"></div>
+    <textarea id="negativePrompt" rows="2" placeholder="Additional negatives..."></textarea>
+  </div>
+
+  <!-- Presets -->
+  <div class="card" style="animation-delay:0.445s">
+    <div class="card-title"><span class="dot"></span> Saved Presets</div>
+    <div class="presets-wrap">
+      <div class="preset-row" id="presetChips"><span class="no-presets">No saved presets yet.</span></div>
+      <div class="preset-save-row"><input class="preset-input" type="text" id="presetName" placeholder="Name this preset..." maxlength="40"><button class="btn-save-preset" onclick="savePreset()">✦ Save</button></div>
+      <div class="export-row">
+        <button class="btn-export" onclick="exportPresets()">⬇ Export</button>
+        <button class="btn-export btn-import" onclick="$('importFileInput').click()">⬆ Import</button>
+        <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importPresets(this)">
+      </div>
+    </div>
+  </div>
+
+  <!-- Prompt History -->
+  <div class="card" style="animation-delay:0.448s">
+    <div class="card-title" onclick="toggleHistory()" style="cursor:pointer;user-select:none;">
+      <span class="dot"></span> Prompt History
+      <span id="historyCount" style="font-size:0.65rem;color:var(--text3);font-family:'DM Sans',sans-serif;font-weight:400;margin-left:8px;letter-spacing:1px">Last 10</span>
+      <svg id="historyChevron" style="width:16px;height:16px;margin-left:auto;color:var(--text3);transition:transform 0.25s;transform:rotate(-90deg)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div id="historyBody" style="max-height:0;overflow:hidden;transition:max-height 0.35s ease">
+      <div class="history-list" id="historyList" style="padding-top:4px"><span class="no-history">No history yet.</span></div>
+    </div>
+  </div>
+
+  <!-- Generate -->
+  <div class="card" style="animation-delay:0.45s">
+    <div class="card-title"><span class="dot"></span> Generate</div>
+    <div class="lock-panel" id="lockPanel"></div>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="generate()">✦ Generate Prompt</button>
+      <button class="btn-ghost" onclick="randomizeAll()">⟳ Randomize</button>
+      <button class="btn-ghost rose" onclick="resetAll()">↺ Reset All</button>
+      <button class="btn-ghost" id="mainCopyBtn" onclick="copyMainPrompt(this)" style="display:none">⎘ Copy Prompt</button>
+    </div>
+    <div class="prompt-variations" id="output"></div>
+  </div>
+
+  <footer><p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.9rem;color:var(--text3)">Made with love & luxury ✦ Image Envy Studio</p></footer>
+</div>
+<div class="toast" id="toast">Copied</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+const appearanceCats = [
+  { id:'face', label:'Facial Features', type:'multiselect', options:['baby face proportions','beauty mark','big rosy cheeks','button nose','chibi nose','defined cheekbones','dimples','freckles','full cheeks','heart shaped face','huge sparkly eyes','oversized head','pouty lips','round face','sharp jawline','snatched face','soft cheeks','tiny cute mouth','wide innocent eyes'] },
+  { id:'skin_texture', label:'Skin Texture', type:'multiselect', options:['airbrushed glass skin','buttery smooth skin','dewy glowing skin','editorial skin','freckled natural skin','glossy oily shine','golden bronzed skin','high-fashion polished skin','icy cool porcelain skin','matte porcelain finish','melanin-rich luminous skin','peachy soft skin','powdery matte skin','radiant lit-from-within skin','rich deep melanin skin','satin finish skin','silky smooth skin','soft velvet skin','sun-kissed glow','wet glossy skin'] },
+  { id:'lashes', label:'Eyelashes', type:'select', options:['doll lashes','dramatic','extra long glam','mega volume','natural','wispy'] },
+  { id:'lips', label:'Lips', type:'select', options:['extra plump','glossy nude','heart shaped lips','matte glam','natural gloss','ombre lips'] },
+  { id:'hair_style', label:'Hair Style', type:'multiselect', options:['90s finger waves','bantu knots','blunt bob','braided updo','braids','bussdown','curly afro','half up half down','high ponytail','layered curls','long dreadlocks','loose curls','messy bun','mohawk','pixie cut','senegalese twists','short dramatic curls','short dreadlocks','sleek high bun with baby hairs','sleek ponytail','space buns','taper haircut','wet waves'] },
+  { id:'hair_color', label:'Hair Color', type:'multiselect', options:['blue','brown','burgundy','dark brown','dirty blonde','honey blonde','icy blue','jet black','mint teal','natural','ombre','peach ombre','pink ombre','pink/purple streaks','platinum blonde','red','rich auburn','rose pink','silver','silver lavender','soft black','split dye'] },
+  { id:'makeup', label:'Makeup', type:'multiselect', options:['blush','bold makeup','colorful makeup','cut crease','editorial makeup','full glam','glitter liner','glossy makeup','natural makeup','rhinestones','smokey eye','soft glam','winged liner'] },
+  { id:'tattoos', label:'Tattoos', type:'multiselect', options:['angel numbers','barbed wire','black and gray','bows','butterflies','chest tattoo','face tattoo','fine line','finger tattoos','flames','floral','full sleeve','half sleeve','hand tattoos','hearts','leg tattoos','money signs','neck tattoo','roses','script lettering','snakes','stars','stomach tattoo','thigh tattoo'] },
+  { id:'glam', label:'Extra Glam', type:'multiselect', options:['baby hairs','body glow','braces','face gems','glitter tears','glossy skin','gold grills','shimmer skin','silver grills','tooth gem'] },
+  { id:'piercings', label:'Piercings', type:'multiselect', options:['angel bites','belly button piercing','bridge piercing','cheek piercings','conch piercing','daith piercing','double lobe piercings','ear stack piercings','eyebrow piercing','full ear piercings','helix piercing','industrial piercing','labret piercing','lip ring','lobe piercings','medusa piercing','monroe piercing','nose ring','nostril stud','rook piercing','septum ring','snake bites','spider bites','tongue piercing','tragus piercing','triple lobe piercings'] }
+];
+const outfitCats = [
+  { id:'outfit', label:'Outfit', type:'multiselect', options:['baggy jeans','baseball jersey','basketball jersey','bodycon dress','bomber jacket with joggers','business attire','business suit','chibi kawaii fashion','classy glam','crop top with cargo pants','denim outfit','designer set','designer top with denim jeans','dressy glam','editorial fashion','fluffy chibi dress','fur coat','glam streetwear','graphic tee','hoodie','hoodie and sweatpants','jumpsuit','leather jacket with ripped jeans','leather outfit','luxury casual','mini skirt','oversized chibi outfit','oversized cozy sweater with leggings','oversized fashion','puffer coat with jeans','satin pajama set','soft girl','sparkly mini dress','sporty','streetwear','sundress','swimwear','t-shirt with dark jeans','tank top with baggy jeans','tomboy','tracksuit','tuxedo','varsity jacket','whimsical chibi coat','y2k'] },
+  { id:'shoes', label:'Shoes', type:'select', options:['air max sneakers','barefoot','boots','chunky sneakers','combat boots','Converse','cowboy boots','Crocs','designer heels','dressy shoes','Dunks','fuzzy slippers','heels','high top sneakers','Jordans','just socks','lace up sneakers','light-up sneakers','mary jane shoes','Nike sneakers','open toe heels','open toe sandals','platform shoes','platform sneakers','rain boots','sandals','slides','stiletto heels','thigh high boots','Timberlands','UGGs','velcro strap shoes','wedges'] },
+  { id:'jewelry', label:'Jewelry', type:'multiselect', options:['anklets','bangle stack','chandelier earrings','charm bracelet','choker necklace','diamond bracelet','diamond pendant','diamond ring','diamond stud earrings','ear cuffs','gold bracelets','gold hoop earrings','layered gold chains','layered silver chains','pearl earrings','pearl necklace','rings','silver bracelets','silver hoop earrings','statement necklace','statement ring','waist beads'] },
+  { id:'bags', label:'Bags', type:'select', options:['none','backpack','chain bag','clutch purse','crossbody bag','fanny pack','gym bag','mini designer bag','shoulder bag','straw bag','tote bag'] },
+  { id:'headwear', label:'Headwear', type:'select', options:['none','baseball cap','beanie','beret','bonnet','bow headband','bucket hat','cowboy hat','crown','fitted cap','headband','silk scarf','snapback','tiara'] },
+  { id:'eyewear', label:'Eyewear', type:'select', options:['none','cat eye sunglasses','clear glasses','colored lens glasses','designer frames','heart shaped sunglasses','oversized sunglasses','round sunglasses','sporty sunglasses','vintage frames'] },
+  { id:'props', label:'Props', type:'multiselect', options:[
+    'microphone','handheld mic','vintage microphone','podcast mic',
+    'balloon bouquet','heart balloons','number balloons','confetti balloons','single balloon',
+    'puppy','kitten','bunny','baby chick','parrot on shoulder',
+    'phone','iced coffee','boba tea','champagne glass','cocktail glass','wine glass','hot coffee cup','water bottle',
+    'bouquet of flowers','roses','sunflowers','tulips',
+    'shopping bags','designer shopping bag',
+    'money','cash stack','credit card',
+    'book','laptop','camera','polaroid camera',
+    'headphones','earbuds','gaming controller',
+    'basketball','soccer ball','skateboard','tennis racket',
+    'guitar','violin','drum sticks',
+    'candle','crystals','tarot cards',
+    'birthday cake','ice cream cone',
+    'trophy','crown in hand',
+    'umbrella','handheld fan',
+    'selfie stick','ring light',
+    'jacket over shoulder','sunglasses in hand'
+  ] },
+  { id:'nail_shape', label:'Nail Shape', type:'select', options:['arrowhead','ballerina','bitten nails','edge nail','extra long coffin','extra long stiletto','flare','lipstick nail','long almond','long coffin','long oval','long square','long stiletto','medium coffin','medium round','medium square','short almond','short coffin','short natural','short oval','short round','short square','short stiletto','squoval'] },
+  { id:'nails', label:'Nail Style', type:'multiselect', options:['3D nail art','abstract art nails','aurora nails','baby blue','cat eye nails','cheetah print nails','chrome nails','classic red','colored french tip','coral pink','cow print nails','crystal encrusted','custom nail art','deep burgundy','designer brand nails','double french','dusty rose','floral nail art','french tip','full rhinestone','glazed donut nails','glitter nails','glitter tips','glossy pink','holographic chrome','hot pink','jelly nails','jet black','lace nail art','lavender','marble nails','matte black','matte nails','matte nude','metallic gold','metallic silver','mint green','mirror chrome','nail gems','negative space nails','nude acrylics','oil slick nails','ombre fade','peach nude','press-on nails','pure white','reverse french','rhinestone tips','rose gold chrome','soft lilac','sugar nails','tie-dye nails','velvet nails','zebra print nails'] }
+];
+const appearanceCatsMale = [
+  { id:'face', label:'Facial Features', type:'multiselect', options:['angular face','beard shadow','beauty mark','chiseled features','deep set eyes','defined cheekbones','dimples','freckles','high cheekbones','piercing gaze','prominent nose','sharp jawline','square jaw','strong brow ridge','subtle smirk','thick eyebrows'] },
+  { id:'skin_texture', label:'Skin Texture', type:'multiselect', options:['airbrushed glass skin','buttery smooth skin','dewy glowing skin','editorial skin','freckled natural skin','glossy oily shine','golden bronzed skin','high-fashion polished skin','icy cool porcelain skin','matte finish skin','melanin-rich luminous skin','naturally oily skin','radiant lit-from-within skin','rich deep melanin skin','rugged textured skin','silky smooth skin','sun-kissed glow'] },
+  { id:'lashes', label:'Eyelashes', type:'select', options:['bold dramatic','long natural','natural','subtle defined','thick and dark'] },
+  { id:'lips', label:'Lips', type:'select', options:['full lips','matte finish','natural','subtle gloss','thin defined'] },
+  { id:'hair_style', label:'Hair Style', type:'multiselect', options:['90s finger waves','afro','bald','bantu knots','blowout','braided updo','braids','buzz cut','caesar cut','cornrows','frohawk','high fade','line up','long dreadlocks','long locs','low fade','mohawk','senegalese twists','short dramatic curls','short dreadlocks','short twists','slick back','taper fade','taper haircut','textured curls','twist out','waves 360'] },
+  { id:'hair_color', label:'Hair Color', type:'multiselect', options:['bleached tips','dark brown','gray','honey blonde','icy blue','jet black','mint teal','natural','ombre','pink ombre','pink/purple streaks','platinum blonde','red','rich auburn','salt and pepper','silver'] },
+  { id:'facial_hair', label:'Facial Hair', type:'multiselect', options:['5 o clock shadow','chinstrap','clean shaven','connected beard','designer stubble','full beard','goatee','light stubble','long beard','mustache','shaped beard','trimmed beard'] },
+  { id:'tattoos', label:'Tattoos', type:'multiselect', options:['back tattoo','black and gray','chest tattoo','crown','eagle','face tattoo','fine line','finger tattoos','flames','full sleeve','geometric','half sleeve','hand tattoos','leg tattoos','lion','money signs','neck tattoo','portraits','religious','roses','script lettering','snakes','stars','tribal'] },
+  { id:'glam', label:'Extra Details', type:'multiselect', options:['body glow','chiseled physique','diamond earring','glossy skin','gold grills','scar detail','silver grills','strong hands','tooth gem','veiny arms'] },
+  { id:'piercings', label:'Piercings', type:'multiselect', options:['bridge piercing','cheek piercings','conch piercing','daith piercing','double lobe piercings','ear stack piercings','eyebrow barbell','eyebrow piercing','full ear piercings','helix piercing','industrial piercing','labret piercing','lip ring','lobe piercing','nose ring','nostril stud','septum ring','snake bites','tongue piercing','tragus piercing'] }
+];
+const outfitCatsMale = [
+  { id:'outfit', label:'Outfit', type:'multiselect', options:['baseball jersey','basketball jersey','blazer and jeans','bomber jacket with joggers','business attire','button up shirt','chibi baggy fit','chibi oversized hoodie','chibi streetwear set','denim outfit','designer set','designer top with denim jeans','dress shirt','editorial fashion','fitted tee','fur coat','glam streetwear','graphic tee and jeans','hoodie and joggers','hoodie and sweatpants','leather jacket with ripped jeans','luxury casual','oversized fashion','polo shirt','puffer coat with jeans','satin pajama set','shorts and tee','sporty','streetwear','t-shirt with dark jeans','tank top with baggy jeans','tracksuit','tuxedo','urban fashion','varsity jacket','y2k'] },
+  { id:'shoes', label:'Shoes', type:'select', options:['Air Force 1s','air max sneakers','barefoot','boots','chunky sneakers','combat boots','Converse','cowboy boots','Crocs','designer sneakers','dress shoes','Dunks','fuzzy slippers','high top sneakers','Jordans','just socks','lace up sneakers','loafers','New Balance','Nike sneakers','platform sneakers','rain boots','sandals','slides','Timberlands','UGGs'] },
+  { id:'jewelry', label:'Jewelry', type:'multiselect', options:['cross pendant','Cuban link chain','diamond bracelet','diamond chain','diamond pendant','diamond ring','dog tags','ear cuff','gold bracelet','gold chain','hoop earring','pinky ring','rings','rope chain','silver bracelet','silver chain','stud earring'] },
+  { id:'bags', label:'Bags', type:'select', options:['none','backpack','crossbody bag','designer duffle','fanny pack','gym bag','shoulder bag','tote bag'] },
+  { id:'headwear', label:'Headwear', type:'select', options:['none','beanie','beret','bucket hat','cowboy hat','durag','fitted cap','hoodie up','snapback','wave cap'] },
+  { id:'eyewear', label:'Eyewear', type:'select', options:['none','aviator sunglasses','clear glasses','colored lens glasses','designer frames','oversized sunglasses','shield sunglasses','sporty sunglasses','vintage frames'] },
+  { id:'props', label:'Props', type:'multiselect', options:[
+    'microphone','handheld mic','vintage microphone','podcast mic',
+    'balloon bouquet','heart balloons','number balloons','confetti balloons',
+    'puppy','kitten','parrot on shoulder',
+    'phone','iced coffee','boba tea','champagne glass','cocktail glass','water bottle','hot coffee cup',
+    'bouquet of flowers','roses',
+    'shopping bags','designer shopping bag',
+    'money','cash stack','credit card',
+    'book','laptop','camera','polaroid camera',
+    'headphones','earbuds','gaming controller',
+    'basketball','soccer ball','football','skateboard','tennis racket',
+    'guitar','drum sticks','violin',
+    'candle','crystals',
+    'trophy','crown in hand',
+    'umbrella',
+    'selfie stick','ring light',
+    'jacket over shoulder','sunglasses in hand','studio lighting rig','photography backdrop','neon sign','smoke machine','confetti explosion'
+  ] },
+  { id:'nail_shape', label:'Nail Shape', type:'select', options:['bitten nails','medium round','medium square','short natural','short oval','short round','short square'] },
+  { id:'nails', label:'Nail Style', type:'multiselect', options:['chrome accent','clean natural nails','clear coat','dark burgundy','deep navy','glossy black','matte black','metallic silver','minimal nail art','nail gems','nude clear','subtle french','white tips'] }
+];
+const poseCats = [
+  { id:'pose', label:'Pose', type:'multiselect', options:['bird eye pose','blowing kiss','chibi action pose','chibi adorable stance','chibi cute twirl','chibi victory pose','crossed arms','dancing pose','fashion pose','hair flip','hands on hips','one leg bent','over shoulder','peace sign','power pose','selfie pose','sitting','standing','walking'] }
+];
+const poseCatsDbl = [
+  { id:'pose', label:'Pose', type:'multiselect', options:['arm around shoulder','back to back','bird eye pose','blowing kiss','chibi action pose','chibi adorable stance','chibi cute twirl','chibi victory pose','crossed arms','dancing pose','fashion pose','hair flip','hands on hips','holding hands','hugging','laughing together','matching poses','one leg bent','over shoulder','peace sign','power pose','selfie pose','sitting','sitting together','standing','walking'] }
+];
+const sceneCats = [
+  { id:'vibe', label:'Mood / Vibe', type:'select', options:['boss energy','cozy and chill','dark and mysterious','editorial fierce','ethereal goddess','futuristic cold','peaceful and dreamy','playful and fun','power move','rebellious edge','retro soul','romantic glam','sassy and confident','soft girl','street royalty','unbothered luxury','warm and joyful','y2k nostalgia'] },
+  { id:'scene', label:'Background Scene', type:'multiselect', options:['anime world','basketball court','beach','beauty salon','black studio','candy land','carnival','chibi dreamy cottage','chibi fantasy meadow','chibi magical garden','chibi starry bedroom','city street','classroom','cyberpunk city','dreamy clouds','galaxy','gaming room','glitter studio','luxury bedroom','luxury resort','magical sparkles','neon city','neon studio','night city','open studio','park','pastel background','photography studio','pink glam room','podcast studio','rooftop','shopping mall','smoke-filled studio','sneaker store','soft gradient','solid white','transparent style'] },
+  { id:'era', label:'Time Era', type:'select', options:['1950s','1960s glam','1970s disco','1980s fashion','1990s hip hop','futuristic','modern day','retro anime','y2k 2000s'] },
+  { id:'camera', label:'Camera Angle', type:'select', options:['3/4 angle','bird eye view','cinematic angle','close up','fashion editorial angle','front view','full body','high angle','low angle','side profile','waist up','zoomed out'] },
+  { id:'lighting', label:'Lighting', type:'multiselect', options:['beauty lighting','cinematic glow','dramatic shadows','dreamy glow','glam lighting','glitter lighting','glowing aura','holographic glow','luxury editorial lighting','magical sparkles','neon lighting','rim lighting','ring light effect','soft studio lighting','sunset lighting'] }
+];
+const qualityCats = [
+  { id:'quality', label:'Quality + Framing', type:'multiselect', options:['8k quality','adorable rendering','centered composition','chibi anatomy','commercial quality','exaggerated chibi proportions','full body visible','high character appeal','huge expressive eyes','maximum chibi charm','no cropped feet','no cropped hair','no cropped limbs','oversized features','polished finish','sharp focus','smooth shading','super cute aesthetic','ultra detailed'] }
+];
+
+/* ── Locked fields ── */
+const _lockedFields = new Set();
+function isLocked(id) { return _lockedFields.has(id); }
+function toggleFieldLock(id) {
+  const wasLocked = _lockedFields.has(id);
+  if (wasLocked) { _lockedFields.delete(id); } else { _lockedFields.add(id); }
+  const now = _lockedFields.has(id);
+  ['lockbtn_'+id,'idlock_'+id].forEach(bid => {
+    const b=$(bid); if(!b) return;
+    b.classList.toggle('locked',now); b.textContent=now?'🔒':'🔓';
+    addAnim(b, now?'lock-pop':'lock-shake', 360);
+  });
+}
+function buildLockGrid(){}
+function toggleLockPanel(){}
+function addIdentityLocks(prefix) {
+  ['gender','ethnicity','skin','age','height','body','eye','expression'].forEach(f => {
+    const fid=f+prefix; const sel=$(fid); if(!sel) return;
+    const wrap=sel.closest('.field-wrap'); if(!wrap) return;
+    const lbl=wrap.querySelector('.field-label');
+    if(!lbl||lbl.querySelector('.lock-btn')) return;
+    const btn=document.createElement('button');
+    btn.className='lock-btn'+(_lockedFields.has(fid)?' locked':'');
+    btn.id='idlock_'+fid; btn.title='Lock field'; btn.textContent=_lockedFields.has(fid)?'🔒':'🔓';
+    btn.onclick=e=>{e.stopPropagation();toggleFieldLock(fid);};
+    lbl.style.cssText+=';display:flex;align-items:center;justify-content:space-between;';
+    lbl.appendChild(btn);
+  });
+}
+
+/* ── Micro-animations ── */
+function addAnim(el,cls,dur){if(!el)return;el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls);setTimeout(()=>el.classList.remove(cls),dur);}
+function wireMicroAnimations(){
+  document.addEventListener('click',e=>{const l=e.target.closest('.pill-grid label');if(l)addAnim(l,'pill-bounce',340);});
+  const gb=document.querySelector('.btn-primary');if(gb)gb.addEventListener('click',()=>addAnim(gb,'btn-ripple',650));
+  document.addEventListener('click',e=>{const b=e.target.closest('.variation-copy,#mainCopyBtn');if(b)setTimeout(()=>addAnim(b,'copy-check',280),50);});
+}
+
+/* ── Build UI ── */
+function buildCat(cat,container,prefix){
+  const section=document.createElement('div'); section.className='cat-section';
+  const useId=`use_${prefix}_${cat.id}`,bodyId=`body_${prefix}_${cat.id}`,customId=`custom_${prefix}_${cat.id}`,selId=`sel_${prefix}_${cat.id}`,lockKey=selId;
+  let optHTML=cat.type==='select'
+    ?`<select id="${selId}" style="margin-top:10px">${cat.options.map(o=>`<option>${o}</option>`).join('')}</select>`
+    :`<div class="pill-grid">${cat.options.map(o=>`<label><input type="checkbox" value="${o}"> ${o}</label>`).join('')}</div>`;
+  section.innerHTML=`<div class="cat-toggle" onclick="toggleCat(this)"><input type="checkbox" id="${useId}" checked onclick="event.stopPropagation()"><span class="cat-label">${cat.label}</span><button class="lock-btn${_lockedFields.has(lockKey)?' locked':''}" id="lockbtn_${lockKey}" title="Lock field" onclick="event.stopPropagation();toggleFieldLock('${lockKey}')">${_lockedFields.has(lockKey)?'🔒':'🔓'}</button><svg class="chevron open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="cat-body open" id="${bodyId}">${optHTML}<div style="margin-top:10px"><textarea id="${customId}" rows="1" placeholder="Custom ${cat.label.toLowerCase()} override..."></textarea></div></div>`;
+  container.appendChild(section);
+}
+function buildSection(cid,cats,prefix){const el=$(cid);if(!el)return;el.innerHTML='';cats.forEach(c=>buildCat(c,el,prefix));}
+function toggleCat(toggle){
+  const body=toggle.closest('.cat-section').querySelector('.cat-body');
+  const chev=toggle.querySelector('.chevron');
+  body.classList.toggle('open'); chev.classList.toggle('open');
+}
+function buildCharSections(prefix){
+  const isMale=$('gender'+prefix)&&$('gender'+prefix).value==='male';
+  const dbl=$('mode')&&$('mode').value==='Double Character';
+  buildSection('appearanceFields_'+prefix, isMale?appearanceCatsMale:appearanceCats, prefix);
+  buildSection('outfitFields_'+prefix,     isMale?outfitCatsMale:outfitCats,         prefix);
+  buildSection('poseFields_'+prefix, (prefix==='B'||dbl)?poseCatsDbl:poseCats,       prefix);
+}
+function randSection(femaleCats,maleCats,prefix){
+  const isMale=$('gender'+prefix)&&$('gender'+prefix).value==='male';
+  const cats=isMale?maleCats:femaleCats;
+  cats.forEach(cat=>{
+    const selId=`sel_${prefix}_${cat.id}`;
+    if(isLocked(selId))return;
+    if(cat.type==='select'){const s=$(selId);if(s)s.selectedIndex=Math.floor(Math.random()*s.options.length);}
+    else{const b=$(`body_${prefix}_${cat.id}`);if(!b)return;const cbs=b.querySelectorAll('input[type=checkbox]');cbs.forEach(c=>c.checked=false);const n=Math.floor(Math.random()*2)+1;const idxs=new Set();while(idxs.size<n&&idxs.size<cbs.length)idxs.add(Math.floor(Math.random()*cbs.length));idxs.forEach(i=>{if(cbs[i])cbs[i].checked=true;});}
+  });
+}
+
+/* ── getCatVal ── */
+function getCatVal(cats,prefix,id){
+  const cat=cats.find(c=>c.id===id); if(!cat)return'';
+  const cb=$(`use_${prefix}_${cat.id}`); if(!cb||!cb.checked)return'';
+  const cust=$(`custom_${prefix}_${cat.id}`); if(cust&&cust.value.trim())return cust.value.trim();
+  if(cat.type==='select'){
+    const s=$(`sel_${prefix}_${cat.id}`);
+    return s?s.value:'';
+  } else {
+    const b=$(`body_${prefix}_${cat.id}`); if(!b)return'';
+    const checked=[...b.querySelectorAll('input[type=checkbox]:checked')].map(c=>c.value);
+    if(checked.length) return checked.join(', ');
+    // Nothing checked — return empty (user hasn't selected anything)
+    return '';
+  }
+}
+
+/* ── Vocab pools ── */
+const uq={
+  eyeDesc:['huge expressive eyes with dramatic long lashes','oversized luminous eyes with ultra-voluminous lashes','enormous doe eyes with sky-high dramatic lashes','wide captivating eyes with feathered mega lashes','large sparkling eyes with bold statement lashes','striking oversized eyes with glamorous full lashes'],
+  lipDesc:['extra-full glossy lips','plump luscious lips with a glassy finish','full pouty lips with a high-shine gloss','voluminous glossy lips','pillowy soft lips with a luminous sheen','gorgeous full lips with a glossy finish'],
+  skinDesc:['smooth rich skin','flawless radiant skin','luminous glowing skin','ultra-smooth glass skin','silky radiant complexion','rich velvety skin'],
+  skinTone:['warm golden undertones','cool ashy undertones','rich reddish-brown undertones','deep warm bronze undertones','soft peachy-warm undertones','luminous golden-bronze undertones'],
+  lightQuality:['with a warm peachy rim light kissing the face','with cool blue fill shadows for depth','backlit with a soft golden halo glow','with dramatic split lighting across features','with a soft ethereal front beauty light','with warm amber side lighting'],
+  artClosing:['bold outlines, ultra-smooth airbrushed shading, soft highlights and luminous glow','crisp clean linework, flawless gradient shading, radiant light effects and polished finish','dynamic bold strokes, buttery-smooth cel shading, iridescent highlights and rich depth','sharp editorial linework, ultra-refined shading, soft rim lighting and premium gloss','precise clean outlines, smooth gradient fills, brilliant highlights and luxury finish']
+};
+const rnd=arr=>arr[Math.floor(Math.random()*arr.length)];
+
+/* ── Build prompt ── */
+function buildCharPrompt(prefix,style,finish,ratio,dbl,varIdx){
+  const custom=$(prefix==='A'?'customA':'customB');
+  const customVal=custom?custom.value.trim():'';
+  const age=$('age'+prefix)?$('age'+prefix).value:'adult';
+  const ethnicity=$('ethnicity'+prefix)?$('ethnicity'+prefix).value:'Black';
+  const gender=$('gender'+prefix)?$('gender'+prefix).value:'female';
+  const skin=$('skin'+prefix)?$('skin'+prefix).value:'deep brown';
+  const height=$('height'+prefix)?$('height'+prefix).value:'average';
+  const body=$('body'+prefix)?$('body'+prefix).value:'curvy';
+  const eyeColor=$('eye'+prefix)?$('eye'+prefix).value:'brown';
+  const expression=$('expression'+prefix)?$('expression'+prefix).value:'confident';
+  const isMale=gender==='male';
+  const aC=isMale?appearanceCatsMale:appearanceCats;
+  const oC=isMale?outfitCatsMale:outfitCats;
+  const face=getCatVal(aC,prefix,'face');
+  const lashes=getCatVal(aC,prefix,'lashes');
+  const lips=getCatVal(aC,prefix,'lips');
+  const makeup=isMale?'':getCatVal(appearanceCats,prefix,'makeup');
+  const facialHair=isMale?getCatVal(aC,prefix,'facial_hair'):'';
+  const tattoos=getCatVal(aC,prefix,'tattoos');
+  const glam=getCatVal(aC,prefix,'glam');
+  const piercings=getCatVal(aC,prefix,'piercings');
+  const skinTexture=getCatVal(aC,prefix,'skin_texture');
+  const hairStyle=getCatVal(aC,prefix,'hair_style');
+  const hairColor=getCatVal(aC,prefix,'hair_color');
+  const outfit=getCatVal(oC,prefix,'outfit');
+  const shoes=getCatVal(oC,prefix,'shoes');
+  const jewelry=getCatVal(oC,prefix,'jewelry');
+  const bags=getCatVal(oC,prefix,'bags');
+  const headwear=getCatVal(oC,prefix,'headwear');
+  const eyewear=getCatVal(oC,prefix,'eyewear');
+  const props=getCatVal(oC,prefix,'props');
+  const nails=getCatVal(oC,prefix,'nails');
+  const nailShape=getCatVal(oC,prefix,'nail_shape');
+  const pCats=$('mode')&&$('mode').value==='Double Character'?poseCatsDbl:poseCats;
+  const pose=getCatVal(pCats,prefix,'pose');
+  const scene=getCatVal(sceneCats,'shared','scene');
+  const camera=getCatVal(sceneCats,'shared','camera');
+  const lighting=getCatVal(sceneCats,'shared','lighting');
+  const era=getCatVal(sceneCats,'shared','era');
+  const quality=getCatVal(qualityCats,'shared','quality');
+  const hairDesc=[hairStyle,hairColor].filter(Boolean).join(' ');
+  const uSkin=rnd(uq.skinTone);
+  const uLight=rnd(uq.lightQuality);
+
+  if(customVal){
+    return `A clean, professional character portrait. A ${finish}, ultra-edgy ${style} style illustration. Create a ${style} character portrait of ${customVal}. Apply a ${finish} finish.\nScene: Place them in a ${scene||'solid white background'}, captured from a ${camera||'front view'}, with ${lighting||'studio lighting'}. Aspect ratio: ${ratio}. Time era: ${era||'modern day'}. Art style: ${style}, bold outlines, ultra-smooth airbrushed shading, soft highlights and luminous glow.`;
+  }
+
+  let p=`A clean, professional character portrait. A ${finish}, ultra-edgy ${style} style illustration with ${rnd(uq.skinDesc)}${skinTexture?`, ${skinTexture}`:''}, ${rnd(uq.eyeDesc)}, ${rnd(uq.lipDesc)}. `;
+  p+=`Create a ${style} character portrait of a ${age} ${gender} of ${ethnicity} ethnicity, with ${skin} skin tone and ${uSkin}, ${height} height, with a ${body} body type`;
+  if(hairDesc)p+=`, ${hairDesc}`;
+  if(eyeColor)p+=` with ${eyeColor} eyes`;
+  p+=`. Apply a ${finish} finish. `;
+  const fp=[face,lashes?`${lashes} lashes`:'',lips?`${lips} lips`:'',facialHair?`${facialHair} facial hair`:'',glam,piercings?`${piercings}`:''].filter(Boolean);
+  if(fp.length)p+=`\nFacial details: ${fp.join(', ')}. `;
+  p+=`The character is looking ${expression}`;
+  if(makeup)p+=`, with ${makeup}`;
+  p+='. ';
+  const sp=[];
+  if(outfit)sp.push(`wearing a ${outfit}`);
+  if(shoes&&shoes!=='none')sp.push(shoes);
+  if(nails||nailShape)sp.push(`${nailShape?nailShape+' ':''} ${nails||''} nails`.trim());
+  if(tattoos)sp.push(tattoos);
+  const acc=[];
+  if(jewelry&&jewelry!=='none')acc.push(jewelry);
+  if(bags&&bags!=='none')acc.push(bags);
+  if(headwear&&headwear!=='none')acc.push(headwear);
+  if(eyewear&&eyewear!=='none')acc.push(eyewear);
+  if(props&&props!=='none')acc.push(`holding ${props}`);
+  if(acc.length)sp.push(`accessorized with ${acc.join(', ')}`);
+  if(sp.length)p+=`Styling: ${sp.join(', ')}. `;
+  if(pose)p+=`\nPose: ${pose} pose. `;
+  const sc=[];
+  if(scene)sc.push(`Place them in a ${scene}`);
+  else sc.push('Place them in a solid white background');
+  if(camera)sc.push(`captured from a ${camera}`);
+  if(lighting)sc.push(`with ${lighting}`);
+  if(quality)sc.push(quality);
+  sc.push(uLight);
+  if(sc.length)p+=`\nScene: ${sc.join(', ')}. `;
+  p+=`\nAspect ratio: ${ratio}. `;
+  if(era)p+=`Time era: ${era}. `;
+  else p+=`Time era: modern day. `;
+  // Inject backstory / narrative context if present
+  const backstory=$('backstoryA')?$('backstoryA').value.trim():'';
+  if(backstory&&prefix==='A')p+=`\nCharacter Narrative: ${backstory}. `;
+  p+=`Art style: ${style}, ${rnd(uq.artClosing)}.`;
+  return p;
+}
+
+/* ── Mode state ── */
+const _modeState={single:null,double:null};
+function captureCharAState(){
+  const s={};
+  ['genderA','ethnicityA','skinA','ageA','heightA','bodyA','eyeA','expressionA'].forEach(id=>{const e=$(id);if(e)s[id]=e.value;});
+  const ca=$('customA');if(ca)s.customA=ca.value;
+  return s;
+}
+function restoreCharAState(s){
+  if(!s)return;
+  ['genderA','ethnicityA','skinA','ageA','heightA','bodyA','eyeA','expressionA'].forEach(id=>{const e=$(id);if(e&&s[id]!==undefined)e.value=s[id];});
+  const ca=$('customA');if(ca&&s.customA!==undefined)ca.value=s.customA;
+  buildCharSections('A');addIdentityLocks('A');
+}
+
+/* ── Mode handler ── */
+$('mode').addEventListener('change',e=>{
+  const val = e.target.value;
+  const dbl = val === 'Double Character';
+  const cc  = val === 'Consistent Character';
+  const sq  = val === 'Squad';
+
+  $('ccPanel').classList.toggle('hidden', !cc);
+  $('squadPanel').classList.toggle('hidden', !sq);
+  if (sq && $('squadMembers') && !$('squadMembers').children.length) {
+    buildSquadMembers(parseInt($('squadSize').value) || 3);
+  }
+
+  if(dbl){
+    _modeState.single=captureCharAState();
+    if(_modeState.double){restoreCharAState(_modeState.double);}else{buildCharSections('A');addIdentityLocks('A');}
+  }else{
+    _modeState.double=captureCharAState();
+    if(_modeState.single){restoreCharAState(_modeState.single);}else{buildCharSections('A');addIdentityLocks('A');}
+  }
+  ['charBSection','appearanceBSection','outfitBSection','poseBSection'].forEach(id=>{$(id).classList.toggle('hidden',!dbl);});
+  $('sharedDoubleFields').classList.toggle('hidden',!dbl);
+  ['badgeA_identity','badgeA_appearance','badgeA_outfit','badgeA_pose'].forEach(id=>{const el=$(id);if(el)el.classList.toggle('hidden',!dbl);});
+  if(dbl){buildCharSections('B');addIdentityLocks('B');$('genderB').onchange=null;$('genderB').onchange=()=>{buildCharSections('B');addIdentityLocks('B');};}
+});
+$('variations').addEventListener('input',e=>{$('varVal').textContent=e.target.value;$('varDisplay').textContent=e.target.value;});
+
+/* ── Presets ── */
+const PRESET_KEY='imageEnvyPresets';
+function getPresets(){try{return JSON.parse(localStorage.getItem(PRESET_KEY)||'[]');}catch(e){return[];}}
+function savePresets(l){try{localStorage.setItem(PRESET_KEY,JSON.stringify(l));}catch(e){}}
+function captureState(){
+  const s={};
+  document.querySelectorAll('select').forEach(e=>{if(e.id)s[e.id]=e.value;});
+  document.querySelectorAll('textarea').forEach(e=>{if(e.id&&!e.readOnly)s[e.id]=e.value;});
+  const pills={};
+  document.querySelectorAll('.pill-grid').forEach(g=>{
+    const checked=[...g.querySelectorAll('input[type=checkbox]:checked')].map(c=>c.value);
+    const key=g.closest('[id]')?g.closest('[id]').id:null;
+    if(key)pills[key]=checked;
+  });
+  s.__pills=pills;s.__variations=$('variations')?$('variations').value:'1';
+  return s;
+}
+function applyState(s){
+  Object.keys(s).forEach(k=>{
+    if(k==='__pills'||k==='__variations')return;
+    const e=$(k);
+    if(e&&e.tagName==='SELECT')e.value=s[k];
+    if(e&&e.tagName==='TEXTAREA'&&!e.readOnly)e.value=s[k];
+  });
+  if(s.__variations&&$('variations')){$('variations').value=s.__variations;$('varVal').textContent=s.__variations;$('varDisplay').textContent=s.__variations;}
+  if(s.__pills){Object.keys(s.__pills).forEach(gid=>{const g=$(gid)?$(gid).querySelector('.pill-grid'):null;if(!g)return;const saved=s.__pills[gid]||[];g.querySelectorAll('input[type=checkbox]').forEach(cb=>{cb.checked=saved.includes(cb.value);});});}
+  $('mode').dispatchEvent(new Event('change'));
+  setTimeout(()=>buildCharSections('A'),80);
+}
+function savePreset(){
+  const name=($('presetName').value||'').trim();if(!name){$('presetName').focus();return;}
+  const l=getPresets();const idx=l.findIndex(p=>p.name===name);
+  if(idx>=0){l[idx].state=captureState();showToast('Preset updated ✦');}else{l.push({name,state:captureState()});showToast('Preset saved ✦');}
+  savePresets(l);$('presetName').value='';renderPresets();
+}
+function loadPreset(name){const l=getPresets();const p=l.find(p=>p.name===name);if(!p)return;applyState(p.state);showToast(`Loaded: ${name}`);}
+function deletePreset(name){savePresets(getPresets().filter(p=>p.name!==name));renderPresets();showToast('Preset removed');}
+function renderPresets(){
+  const l=getPresets();const w=$('presetChips');if(!w)return;
+  if(!l.length){w.innerHTML='<span class="no-presets">No saved presets yet.</span>';return;}
+  w.innerHTML=l.map(p=>`<div class="preset-chip" onclick="loadPreset('${p.name.replace(/'/g,"\\'")}')">✦ ${p.name}<span class="del" onclick="event.stopPropagation();deletePreset('${p.name.replace(/'/g,"\\'")}')">✕</span></div>`).join('');
+}
+function exportPresets(){
+  const l=getPresets();if(!l.length){showToast('No presets to export');return;}
+  const blob=new Blob([JSON.stringify(l,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='image-envy-presets.json';a.click();URL.revokeObjectURL(url);
+  showToast(`Exported ${l.length} presets ✦`);
+}
+function importPresets(input){
+  const file=input.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{const imported=JSON.parse(e.target.result);if(!Array.isArray(imported))throw 0;
+    const m=[...getPresets()];imported.forEach(p=>{if(p.name&&p.state){const i=m.findIndex(x=>x.name===p.name);if(i>=0)m[i]=p;else m.push(p);}});
+    savePresets(m);renderPresets();showToast(`Imported ${imported.length} presets ✦`);}
+    catch(e){showToast('Invalid preset file');}
+    input.value='';
+  };r.readAsText(file);
+}
+
+/* ── History ── */
+const HISTORY_KEY='imageEnvyHistory';
+function getHistory(){try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');}catch(e){return[];}}
+function saveHistory(l){try{localStorage.setItem(HISTORY_KEY,JSON.stringify(l.slice(0,10)));}catch(e){}}
+function addToHistory(prompt){
+  const l=getHistory();l.unshift({prompt,time:new Date().toLocaleString(),platform:'Image Envy Studio'});
+  saveHistory(l);renderHistory();
+  const b=$('historyCount');if(b)b.textContent=`${l.length} saved`;
+}
+function renderHistory(){
+  const l=getHistory();const el=$('historyList');if(!el)return;
+  const b=$('historyCount');if(b)b.textContent=l.length?`${l.length} saved`:'Last 10';
+  if(!l.length){el.innerHTML='<span class="no-history">No history yet.</span>';return;}
+  el.innerHTML=l.map((item,i)=>`<div class="history-item"><div class="history-meta"><span class="history-time">${item.time}</span><span class="history-platform">${item.platform}</span></div><div class="history-snippet">${item.prompt}</div><div class="history-actions"><button class="history-btn" onclick="copyHistoryItem(${i})">⎘ Copy</button><button class="history-btn del" onclick="deleteHistoryItem(${i})">✕ Remove</button></div></div>`).join('');
+}
+function copyHistoryItem(i){const l=getHistory();if(!l[i])return;navigator.clipboard.writeText(l[i].prompt).then(()=>showToast('Copied from history ✦'));}
+function deleteHistoryItem(i){const l=getHistory();l.splice(i,1);saveHistory(l);renderHistory();showToast('Removed');}
+function toggleHistory(){
+  const body=$('historyBody'),chev=$('historyChevron');
+  const open=body.style.maxHeight!=='0px'&&body.style.maxHeight!=='';
+  body.style.maxHeight=open?'0px':'2000px';
+  chev.style.transform=open?'rotate(-90deg)':'rotate(0deg)';
+}
+
+/* ── Neg prompt chips ── */
+const NEG_PRESETS=['blurry','extra fingers','bad anatomy','distorted face','watermark','cropped feet','cropped head','low quality','flat shading','text overlay','extra limbs','deformed hands','ugly','duplicate character','wrong proportions','out of frame','grainy','overexposed'];
+const _activeNegs=new Set();
+function buildNegChips(){
+  const w=$('negChips');if(!w)return;w.innerHTML='';
+  NEG_PRESETS.forEach(neg=>{
+    const c=document.createElement('div');
+    c.className='neg-chip'+(_activeNegs.has(neg)?' active':'');
+    c.textContent=(_activeNegs.has(neg)?'':'+  ')+neg;
+    c.onclick=()=>{if(_activeNegs.has(neg))_activeNegs.delete(neg);else _activeNegs.add(neg);buildNegChips();syncNeg();};
+    w.appendChild(c);
+  });
+}
+function syncNeg(){
+  const chipText=[..._activeNegs].join(', ');
+  const manual=$('negativePrompt').value.trim();
+  $('negativePrompt').value=[chipText,manual].filter(Boolean).join(', ');
+}
+
+/* ── Theme ── */
+function toggleTheme(){
+  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme',dark?'light':'dark');
+  $('themeToggle').textContent=dark?'☀️':'🌙';
+  try{localStorage.setItem('imageEnvyTheme',dark?'light':'dark');}catch(e){}
+}
+function initTheme(){
+  let s='light';try{s=localStorage.getItem('imageEnvyTheme')||'light';}catch(e){}
+  document.documentElement.setAttribute('data-theme',s);
+  $('themeToggle').textContent=s==='dark'?'🌙':'☀️';
+}
+
+/* ── Mobile sticky ── */
+function initMobileSticky(){
+  const isMobile=()=>window.innerWidth<=640;
+  const bar=$('stickyGen');if(!bar)return;
+  const show=()=>{if(isMobile())bar.style.display='flex';};
+  const hide=()=>{bar.style.display='none';};
+  if(isMobile())show();
+  window.addEventListener('resize',()=>isMobile()?show():hide());
+}
+
+/* ── Toast ── */
+function showToast(msg){
+  const t=$('toast');t.textContent=msg||'Copied';
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+/* ── Copy functions ── */
+function copyVariation(btn){
+  const text=btn.closest('.variation-card').querySelector('.variation-text').textContent;
+  navigator.clipboard.writeText(text).then(()=>{btn.classList.add('copied');btn.textContent='✓ Copied!';showToast('Copied ✦');setTimeout(()=>{btn.classList.remove('copied');btn.textContent='⎘ Copy Prompt';},2200);});
+}
+function copyMainPrompt(btn){
+  const text=window._lastPrompt||'';if(!text)return;
+  navigator.clipboard.writeText(text).then(()=>{btn.classList.add('copied');btn.innerHTML='✓ &nbsp;Copied!';showToast('Copied ✦');setTimeout(()=>{btn.classList.remove('copied');btn.innerHTML='⎘ &nbsp;Copy Prompt';},2200);});
+}
+
+/* ── Randomize all ── */
+function randomizeAll(){
+  const rs=sel=>{if(sel&&!isLocked(sel.id))sel.selectedIndex=Math.floor(Math.random()*sel.options.length);};
+  ['mode','cartoonType','artFinish','aspectRatio','genderA','ethnicityA','skinA','ageA','heightA','bodyA','eyeA','expressionA'].forEach(id=>{if(!isLocked(id))rs($(id));});
+  function rc(cats,prefix){cats.forEach(cat=>{const sid=`sel_${prefix}_${cat.id}`;if(isLocked(sid))return;if(cat.type==='select')rs($(`sel_${prefix}_${cat.id}`));else{const b=$(`body_${prefix}_${cat.id}`);if(!b)return;const cbs=b.querySelectorAll('input[type=checkbox]');cbs.forEach(c=>c.checked=false);const n=Math.floor(Math.random()*3)+1;const idxs=new Set();while(idxs.size<n&&idxs.size<cbs.length)idxs.add(Math.floor(Math.random()*cbs.length));idxs.forEach(i=>cbs[i].checked=true);}});}
+  rc(sceneCats,'shared');rc(qualityCats,'shared');
+  $('mode').dispatchEvent(new Event('change'));
+  const isMaleA=$('genderA').value==='male';
+  rc(isMaleA?appearanceCatsMale:appearanceCats,'A');rc(isMaleA?outfitCatsMale:outfitCats,'A');rc(poseCats,'A');
+  const dbl=$('mode').value==='Double Character';
+  if(dbl){['genderB','ethnicityB','skinB','ageB','heightB','bodyB','eyeB','expressionB','relationship','relationshipVibe','coordinationStyle'].forEach(id=>{if(!isLocked(id))rs($(id));});setTimeout(()=>{const isMaleB=$('genderB').value==='male';rc(isMaleB?appearanceCatsMale:appearanceCats,'B');rc(isMaleB?outfitCatsMale:outfitCats,'B');rc(poseCatsDbl,'B');},50);}
+}
+
+/* ── Reset all ── */
+function resetAll(){
+  document.querySelectorAll('select').forEach(s=>s.selectedIndex=0);
+  document.querySelectorAll('textarea').forEach(t=>{if(!t.readOnly)t.value='';});
+  document.querySelectorAll('.pill-grid input[type=checkbox]').forEach(c=>c.checked=false);
+  document.querySelectorAll('[id^="use_"]').forEach(cb=>cb.checked=true);
+  $('variations').value=1;$('varVal').textContent='1';$('varDisplay').textContent='1';
+  $('output').innerHTML='';$('mainCopyBtn').style.display='none';window._lastPrompt='';
+  ['charBSection','appearanceBSection','outfitBSection','poseBSection','sharedDoubleFields'].forEach(id=>$(id).classList.add('hidden'));
+  ['badgeA_identity','badgeA_appearance','badgeA_outfit','badgeA_pose'].forEach(id=>{const el=$(id);if(el)el.classList.add('hidden');});
+  _modeState.single=null;_modeState.double=null;
+  _activeNegs.clear();buildNegChips();$('negativePrompt').value='';
+  _lockedFields.clear();addIdentityLocks('A');
+  $('presetName').value='';
+  const scb=$('stickyMainCopyBtn');if(scb)scb.style.display='none';
+}
+
+/* ── Generate ── */
+function generate(){
+  const mode=$('mode').value,count=parseInt($('variations').value)||1;
+  const style=$('cartoonType').value,finish=$('artFinish').value,ratio=$('aspectRatio').value;
+  const dbl=mode==='Double Character',neg=$('negativePrompt').value.trim();
+  const out=$('output');out.innerHTML='';
+
+  if(dbl){buildCharSections('B');addIdentityLocks('B');}
+
+  // Squad Mode — use dedicated squad prompt builder
+  if(mode === 'Squad'){
+    const p = buildSquadPrompt(style, finish, ratio);
+    const card=document.createElement('div');card.className='variation-card';
+    card.innerHTML=`<div class="variation-tag">Squad Prompt — Ready to Copy</div><div class="variation-text">${p}</div><div style="display:flex;gap:10px;margin-top:14px"><button class="variation-copy" onclick="copyVariation(this)">⎘ Copy Prompt</button></div>`;
+    out.appendChild(card);
+    window._lastPrompt=p;
+    $('mainCopyBtn').style.display='inline-flex';$('mainCopyBtn').classList.remove('copied');$('mainCopyBtn').innerHTML='⎘ &nbsp;Copy Prompt';
+    const scb=$('stickyMainCopyBtn');if(scb)scb.style.display='inline-flex';
+    addToHistory(p);
+    return;
+  }
+
+  // Build the core character prompt once
+  let cp=buildCharPrompt('A',style,finish,ratio,dbl,0);
+  if(_cdActive){const cdType=$('cdCollectionType')?$('cdCollectionType').value:'editorial';cp=buildCDPrompt(cp,0,cdType);}
+
+  // Prefix: "Create N variations of" or "Create 1 variation of"
+  let p = count > 1 ? `Create ${count} variations of ` + cp : cp;
+
+  if(dbl){
+    const bp=buildCharPrompt('B',style,finish,ratio,false,0);
+    p+=`\n\n${'─'.repeat(40)}\n— CHARACTER B —\n${'─'.repeat(40)}\n`+bp;
+    const rel=$('relationship')?$('relationship').value:'none';
+    const relV=$('relationshipVibe')?$('relationshipVibe').value:'';
+    const coord=$('coordinationStyle')?$('coordinationStyle').value:'';
+    if(rel!=='none')p+=`\n\nRelationship: ${rel} — ${relV}. Coordination: ${coord}.`;
+    const interaction=$('interactionType')?$('interactionType').value:'none — standing near each other';
+    const heightDyn=$('heightDynamic')?$('heightDynamic').value:'same height';
+    const focus=$('sceneFocus')?$('sceneFocus').value:'equal focus both characters';
+    if(interaction!=='none — standing near each other')p+=`\nInteraction: ${interaction}.`;
+    if(heightDyn!=='same height')p+=` Height dynamic: ${heightDyn}.`;
+    if(focus!=='equal focus both characters')p+=` Composition focus: ${focus}.`;
+    p+='\n— Keep Character A and B as two distinct, independently styled subjects.';
+  }
+
+  if(neg)p+=`\n\n[NEGATIVE PROMPT] ${neg}`;
+
+  if(count>1)p+=`\n\n— Each of the ${count} variations must be visually distinct — different composition, lighting angle, expression, and rendering mood while maintaining the same core character identity.`;
+
+  // Consistent Character — prepend DNA brief
+  if(mode==='Consistent Character'&&_activeCCDNA){
+    p=`[CHARACTER DNA — ${_activeCCDNA.name}: ${_activeCCDNA.brief}. MAINTAIN THIS CHARACTER EXACTLY — same face, skin, hair, and signature details across all variations.]\n\n`+p;
+  }
+
+  // Single output card
+  const card=document.createElement('div');card.className='variation-card';
+  card.innerHTML=`<div class="variation-tag">${count>1?`${count} Variations — Ready to Copy`:'Prompt — Ready to Copy'}</div><div class="variation-text">${p}</div><div style="display:flex;gap:10px;margin-top:14px"><button class="variation-copy" onclick="copyVariation(this)">⎘ Copy Prompt</button></div>`;
+  out.appendChild(card);
+
+  window._lastPrompt=p;
+  $('mainCopyBtn').style.display='inline-flex';
+  $('mainCopyBtn').classList.remove('copied');
+  $('mainCopyBtn').innerHTML='⎘ &nbsp;Copy Prompt';
+  const scb=$('stickyMainCopyBtn');if(scb)scb.style.display='inline-flex';
+  addToHistory(p);
+}
+
+/* ══ CREATIVE DIRECTOR MODE ══ */
+const CD_COLLECTIONS={
+  editorial:{name:'Editorial Photoshoot',tag:'Fashion',badge:'✦ Editorial Photoshoot — 4 coordinated shots',variations:[
+    {label:'Shot 1 — Magazine Cover',concept:'Magazine Cover Shot',desc:'Powerful, iconic, cover-ready.',tags:['Studio','Front View'],scene:'luxury studio backdrop',camera:'front view',composition:'centered symmetrical full-body editorial',lighting:'high-end studio lighting with soft rim glow',pose:'standing, one hand on hip, direct eye contact with camera',mood:'powerful, iconic, cover-ready',expression:'confident, direct, commanding eye contact — no smile, pure power'},
+    {label:'Shot 2 — Lifestyle',concept:'Lifestyle Shot',desc:'Natural, candid, aspirational.',tags:['Urban','Candid'],scene:'luxury urban rooftop or city street',camera:'3/4 angle',composition:'natural candid editorial, slightly off-center',lighting:'golden hour warm ambient lighting',pose:'mid-movement, relaxed, natural confident stance',mood:'effortless, aspirational, real-life luxury',expression:'relaxed natural smile, candid caught-off-guard energy, genuine warmth'},
+    {label:'Shot 3 — Beauty Close-Up',concept:'Beauty Close-Up',desc:'Intimate, stunning beauty shot.',tags:['Close-Up','Beauty'],scene:'soft blurred studio background',camera:'close up, face and shoulders only',composition:'tight beauty crop, face centered',lighting:'cinematic beauty lighting with bloom',pose:'subtle tilt, soft gaze or slight profile',mood:'intimate, stunning, editorial beauty',expression:'soft dreamy gaze, slight downward look, lips softly parted — ethereal and intimate'},
+    {label:'Shot 4 — Hero Campaign',concept:'Hero Campaign Shot',desc:'Bold, campaign-ready, commanding.',tags:['Low Angle','Power'],scene:'dramatic backdrop, bold environment',camera:'low angle, full body',composition:'wide sweeping cinematic frame',lighting:'dramatic high-contrast cinematic lighting',pose:'power pose, commanding stance, owns the entire frame',mood:'bold, campaign-ready, iconic and unforgettable',expression:'fierce intense stare, jaw set, unbothered power — the defining image'}
+  ]},
+  brand:{name:'Brand Photoshoot',tag:'Business',badge:'✦ Brand Photoshoot — 4 coordinated shots',variations:[
+    {label:'Shot 1 — Profile Photo',concept:'Profile Photo',desc:'Professional, approachable, trustworthy.',tags:['Portrait','Clean'],scene:'clean neutral background',camera:'close up, face and shoulders',composition:'centered portrait',lighting:'soft beauty lighting',pose:'direct eye contact, confident approachable expression',mood:'professional, trustworthy, personal brand authority',expression:'warm confident smile, approachable and professional — the face people trust'},
+    {label:'Shot 2 — Workspace',concept:'Workspace Shot',desc:'Productive, successful, authentic.',tags:['Environment','Context'],scene:'luxury desk or podcast studio',camera:'3/4 angle, waist up',composition:'environment tells the story',lighting:'warm ambient workspace lighting',pose:'sitting at desk, looking up naturally from work',mood:'productive, successful, authentic behind the scenes',expression:'natural mid-task look, slightly surprised upward glance — caught in the work'},
+    {label:'Shot 3 — Creator Shot',concept:'Teaching / Creator Shot',desc:'Energetic, relatable, knowledgeable.',tags:['Engaging','Ring Light'],scene:'bright engaging background',camera:'front view, waist up',composition:'open engaging frame, teaching energy',lighting:'ring light effect, bright and clear',pose:'hands gesturing, mid-explanation, speaking to camera',mood:'energetic, knowledgeable, relatable and engaging',expression:'animated mid-speech expression, hands moving, enthusiastic and engaging'},
+    {label:'Shot 4 — Brand Hero',concept:'Personal Brand Hero',desc:'Visionary, authority, premium brand.',tags:['Low Angle','Full Body'],scene:'bold brand-aligned environment',camera:'low angle, full body',composition:'aspirational full-body brand statement',lighting:'luxury editorial with dramatic depth',pose:'confident power stance, fully embodying the brand vision',mood:'visionary, authority, premium personal brand',expression:'serious visionary gaze into distance, contemplative power — the legacy shot'}
+  ]},
+  evolution:{name:'Character Evolution',tag:'Story',badge:'✦ Character Evolution — 4 era shots',variations:[
+    {label:'Era 1 — Beginning',concept:'Beginning Era',desc:'Humble beginnings, raw potential.',tags:['Simple','Honest'],scene:'humble everyday environment',camera:'front view',composition:'grounded, early chapter energy',lighting:'soft natural lighting',pose:'modest stance, slightly uncertain but full of quiet hope',mood:'humble beginnings, raw potential, the start of the story',expression:'soft uncertain smile, slightly shy, hopeful eyes — young and hungry'},
+    {label:'Era 2 — Glow-Up',concept:'Glow-Up Era',desc:'Transformation, growth, leveling up.',tags:['Elevated','Emerging'],scene:'elevated stylish environment',camera:'3/4 angle',composition:'ascending energy, upward composition',lighting:'warmer richer lighting',pose:'more confident stance, standing taller, finding their power',mood:'transformation, growth, leveling up and stepping into self',expression:'growing confidence, knowing smile, eyes that have seen something change'},
+    {label:'Era 3 — Boss',concept:'Boss Era',desc:'Success achieved, power, excellence.',tags:['Luxury','Dominant'],scene:'luxury professional environment, commanding space',camera:'low angle power shot',composition:'dominant framing, character owns the entire frame',lighting:'dramatic luxury editorial lighting',pose:'powerful commanding stance, arms crossed or hands on hips',mood:'success achieved, power, excellence and authority in full bloom',expression:'unbothered boss energy, slight smirk, eyes that say everything is handled'},
+    {label:'Era 4 — Legacy',concept:'Legacy Era',desc:'Legendary status, timeless greatness.',tags:['Iconic','Cinematic'],scene:'iconic timeless grand environment',camera:'cinematic wide angle, heroic framing',composition:'legendary, epic, built-to-last framing',lighting:'cinematic golden legacy lighting',pose:'iconic signature pose, the definitive image of who they became',mood:'legendary status, timeless greatness — this image will outlive everything',expression:'serene powerful gaze, legacy energy, the look of someone who has already won'}
+  ]},
+  social:{name:'Social Media Pack',tag:'Creator',badge:'✦ Social Media Pack — 4 platform shots',variations:[
+    {label:'Shot 1 — Profile Picture',concept:'Profile Picture',desc:'Instantly recognizable, warm, inviting.',tags:['1:1','Close-Up'],scene:'clean simple background',camera:'close up, face only',composition:'1:1 square crop, face centered',lighting:'bright flattering beauty lighting',pose:'direct eye contact, slight smile',mood:'instantly recognizable, warm and inviting',expression:'genuine warm smile, bright eyes, approachable and likeable — the face people follow'},
+    {label:'Shot 2 — Content Creator',concept:'Content Creator',desc:'Authentic, relatable, social media ready.',tags:['Ring Light','Engaging'],scene:'aesthetic content creation setup',camera:'front view, waist up',composition:'relatable creator moment',lighting:'ring light effect',pose:'holding phone or gesturing',mood:'authentic, relatable, social media ready',expression:'animated reaction face, mid-laugh or excited — scroll-stopping energy'},
+    {label:'Shot 3 — Promotional',concept:'Promotional Image',desc:'Exciting, urgent, must-click energy.',tags:['Bold','High Energy'],scene:'bold eye-catching background',camera:'3/4 angle, full body or waist up',composition:'scroll-stopping framing',lighting:'bold vibrant lighting',pose:'promotional announcing stance',mood:'exciting, urgent, must-click',expression:'hyped excited expression, big energy, announcing something major'},
+    {label:'Shot 4 — Banner / Cover',concept:'Banner / Cover Style',desc:'Bold brand statement, channel-defining.',tags:['Wide','Landscape'],scene:'wide expansive background',camera:'16:9 landscape, character off-center',composition:'wide banner with negative space for text',lighting:'clean editorial lighting',pose:'open body language, wide confident stance',mood:'bold brand statement',expression:'confident composed expression, professional — this represents the whole brand'}
+  ]},
+  lookbook:{name:'Fashion Lookbook',tag:'Fashion',badge:'✦ Fashion Lookbook — 4 style shots',variations:[
+    {label:'Look 1 — Streetwear',concept:'Streetwear Look',desc:'Cool, effortless, urban credibility.',tags:['Street','Urban'],scene:'urban street environment',camera:'full body, front or 3/4',composition:'street photography editorial',lighting:'natural urban daylight',pose:'street style pose, casual confident',mood:'cool, effortless, urban',expression:'cool unbothered face, slight attitude, the definition of effortless'},
+    {label:'Look 2 — Casual Luxury',concept:'Casual Luxury Look',desc:'Effortless wealth, quiet luxury.',tags:['Luxury','Relaxed'],scene:'upscale casual setting',camera:'3/4 angle, waist up',composition:'relaxed elevated framing',lighting:'soft warm luxury lighting',pose:'relaxed but polished, off-duty model',mood:'effortless wealth, quiet luxury',expression:'relaxed half-smile, at ease, someone who has nothing to prove'},
+    {label:'Look 3 — Editorial',concept:'Editorial Fashion Look',desc:'Avant-garde, high-fashion, editorial.',tags:['Editorial','Bold'],scene:'high-fashion editorial setting',camera:'full body, editorial angle',composition:'bold fashion magazine composition',lighting:'dramatic high-fashion lighting',pose:'fierce editorial pose',mood:'avant-garde, high-fashion, editorial',expression:'editorial fierce face, no smile, high fashion energy — this belongs in a magazine'},
+    {label:'Look 4 — Runway Hero',concept:'Runway Hero Look',desc:'Showstopping, runway royalty.',tags:['Runway','Spotlight'],scene:'runway inspired environment',camera:'low angle full body',composition:'runway moment, full presence',lighting:'runway spotlight dramatic lighting',pose:'mid-stride runway walk, commanding the entire space',mood:'showstopping, runway royalty',expression:'runway blank expression, model walk face — cold, beautiful, commanding'}
+  ]},
+  sticker:{name:'Sticker Pack',tag:'Fun',badge:'✦ Sticker Pack — 4 expression shots',variations:[
+    {label:'Sticker 1 — Happy',concept:'Happy Expression',desc:'Joyful, celebratory, instantly loveable.',tags:['Clean BG','Fun'],scene:'solid white or transparent background',camera:'close up, face and upper body',composition:'centered clean sticker framing',lighting:'bright flat clean lighting',pose:'happy excited gesture, arms up or big smile',mood:'joyful, celebratory',expression:'massive genuine smile, eyes crinkled with joy, arms raised — pure happiness'},
+    {label:'Sticker 2 — Confident',concept:'Confident Expression',desc:'Boss energy, unbothered, self-assured.',tags:['Clean BG','Boss'],scene:'clean transparent or solid background',camera:'close up, face and shoulders',composition:'bold centered sticker composition',lighting:'clean bright flat lighting',pose:'confident smirk, crossed arms',mood:'boss energy, unbothered',expression:'iconic smirk, one eyebrow raised, crossed arms — I woke up like this'},
+    {label:'Sticker 3 — Funny',concept:'Funny Expression',desc:'Hilarious, relatable, reaction energy.',tags:['Clean BG','Playful'],scene:'clean background',camera:'close up, exaggerated expression',composition:'playful dynamic sticker framing',lighting:'flat bright comic-style lighting',pose:'exaggerated funny reaction',mood:'hilarious, relatable',expression:'exaggerated shocked face, wide eyes, mouth dropped — ultimate reaction sticker'},
+    {label:'Sticker 4 — Signature',concept:'Signature Expression',desc:'Iconic, memorable, definitive character.',tags:['Clean BG','Iconic'],scene:'clean background, brand sticker ready',camera:'close up, full character personality',composition:'hero sticker composition',lighting:'clean polished sticker lighting',pose:'signature most recognizable pose',mood:'iconic, memorable, definitive',expression:"the character's most recognizable signature expression — their defining face"}
+  ]},
+  childrens:{name:"Children's Book Character",tag:'Kids',badge:"✦ Children's Book — 4 story shots",variations:[
+    {label:'Scene 1 — Introduction',concept:'Introduction Pose',desc:'Warm, inviting, meet the character.',tags:['Friendly','Colorful'],scene:'warm friendly colorful environment',camera:'front view, full body',composition:'friendly open welcoming framing',lighting:'bright warm cheerful lighting',pose:'waving hello, big open friendly stance',mood:'warm, inviting, meet this amazing character',expression:'biggest warmest smile, bright eyes, arms open — hello world!'},
+    {label:'Scene 2 — Adventure',concept:'Adventure Pose',desc:'Exciting, brave, big adventure.',tags:['Action','Dynamic'],scene:'exciting adventure environment',camera:'dynamic angle, full body',composition:'movement and energy framing',lighting:'bright energetic outdoor lighting',pose:'running, jumping, or action mid-adventure',mood:'exciting, brave, the adventure of a lifetime',expression:'determined brave expression, eyes wide with wonder and excitement'},
+    {label:'Scene 3 — Learning',concept:'Learning Pose',desc:'Curious, learning, discovery.',tags:['Curious','Warm'],scene:'classroom or cozy learning environment',camera:'front or 3/4 view, full body',composition:'curious engaged framing',lighting:'warm soft classroom lighting',pose:'holding book, pointing at something interesting',mood:'curious, learning, the joy of discovery',expression:'thoughtful curious face, finger on chin — the lightbulb moment'},
+    {label:'Scene 4 — Hero Moment',concept:'Hero Character Pose',desc:'Victorious, inspiring, the hero.',tags:['Triumph','Golden'],scene:'triumphant setting, the climax of the story',camera:'low angle, full body heroic shot',composition:'triumphant heroic framing',lighting:'warm golden heroic lighting',pose:'triumphant hero pose, fist raised or arms wide',mood:'victorious, inspiring, the hero of their own story',expression:'triumphant joyful face, arms raised in victory — they did it!'}
+  ]},
+  anniversary:{name:'Anniversary / Milestone',tag:'Personal',badge:'✦ Anniversary Collection — 4 shots',variations:[
+    {label:'Shot 1 — Before',concept:'Before',desc:'Where it started. Humble, real.',tags:['Simple','Honest'],scene:'simple humble background',camera:'front view',composition:'grounded honest framing',lighting:'soft natural everyday lighting',pose:'relaxed natural beginning stance',mood:'humble beginnings, raw authenticity',expression:'soft hopeful smile, slightly nervous energy — young and just getting started'},
+    {label:'Shot 2 — During',concept:'During',desc:'In the journey. Focused, driven.',tags:['Journey','Focused'],scene:'working environment, mid-process',camera:'3/4 angle, waist up',composition:'in-motion dedicated framing',lighting:'warm purposeful working light',pose:'focused determined pose',mood:'dedication, drive, deep in the process',expression:'focused determined expression, brow slightly furrowed — locked in'},
+    {label:'Shot 3 — After',concept:'After',desc:'Achievement unlocked. Proud.',tags:['Success','Proud'],scene:'elevated achievement setting',camera:'3/4 or low angle',composition:'elevated proud framing',lighting:'warm golden success lighting',pose:'proud accomplished confident stance',mood:'pride, success, the feeling of earning something real',expression:'proud genuine smile, eyes gleaming with accomplishment — they made it'},
+    {label:'Shot 4 — Celebration',concept:'Celebration',desc:'The celebration. Pure joy.',tags:['Celebration','Joy'],scene:'celebratory environment',camera:'dynamic full energy angle',composition:'celebratory full expression framing',lighting:'vibrant festive bright lighting',pose:'arms raised, full celebration energy',mood:'pure unapologetic joy, the celebration this milestone deserves',expression:'biggest most genuine smile, eyes closed in pure happiness — this is the moment'}
+  ]},
+  seasonal:{name:'Seasonal Drop',tag:'Fashion',badge:'✦ Seasonal Drop — 4 seasonal shots',variations:[
+    {label:'Spring — Fresh',concept:'Spring Look',desc:'Fresh, blooming, new beginnings.',tags:['Spring','Fresh'],scene:'spring garden or floral environment',camera:'3/4 angle, full body',composition:'light airy editorial framing',lighting:'soft bright spring daylight',pose:'light energetic spring energy',mood:'fresh, new beginnings, blooming',expression:'bright beaming smile, eyes full of possibility — spring just arrived'},
+    {label:'Summer — Peak',concept:'Summer Energy',desc:'Hot, bold, peak confidence.',tags:['Summer','Bold'],scene:'summer beach or rooftop',camera:'low angle or front, full body',composition:'bold sun-soaked framing',lighting:'bright golden summer sunlight',pose:'peak confidence summer pose',mood:'hot, confident, the absolute peak',expression:'bold sultry summer face, sun-kissed and absolutely magnetic'},
+    {label:'Fall — Transition',concept:'Fall Transition',desc:'Rich, moody, elevated.',tags:['Fall','Moody'],scene:'autumn setting, rich warm environment',camera:'3/4 angle',composition:'moody elevated editorial',lighting:'warm amber fall lighting',pose:'elegant rich transitional pose',mood:'rich, moody, elevated and refined',expression:'contemplative moody gaze, rich energy — autumn in every line of the face'},
+    {label:'Winter — Luxe',concept:'Winter Luxe',desc:'Cold luxury, premium, iconic.',tags:['Winter','Luxury'],scene:'winter luxury setting',camera:'front or low angle',composition:'dramatic luxury winter framing',lighting:'cool dramatic winter lighting',pose:'powerful luxurious winter pose',mood:'cold luxury, premium, the most iconic image of the year',expression:'cool icy beautiful expression, luxury winter energy — untouchable'}
+  ]},
+  moodboard:{name:'Mood Board Series',tag:'Creative',badge:'✦ Mood Board — 4 mood shots',variations:[
+    {label:'Mood 1 — Soft',concept:'Soft Mood',desc:'Gentle, dreamy, delicate energy.',tags:['Soft','Dreamy'],scene:'soft pastel dreamy background',camera:'close up or 3/4',composition:'soft gentle centered framing',lighting:'diffused soft dreamy lighting',pose:'gentle soft pose',mood:'gentle, dreamy, delicate',expression:'soft dreamy eyes, barely-there smile, looking slightly away — ethereal and tender'},
+    {label:'Mood 2 — Bold',concept:'Bold Mood',desc:'Fierce, powerful, undeniable.',tags:['Bold','Fierce'],scene:'bold high contrast environment',camera:'low angle, full body',composition:'bold dominant powerful framing',lighting:'high contrast dramatic lighting',pose:'fierce bold commanding pose',mood:'fierce, powerful, undeniable',expression:'intense fierce direct stare, no expression except power — undeniable'},
+    {label:'Mood 3 — Mysterious',concept:'Mysterious Mood',desc:'Dark, intriguing, magnetic.',tags:['Dark','Mysterious'],scene:'dark moody mysterious environment',camera:'3/4 angle, shadow play',composition:'mysterious shadow and light framing',lighting:'dramatic low key mysterious lighting',pose:'mysterious intriguing pose, partially in shadow',mood:'dark, intriguing, magnetic',expression:"mysterious hooded gaze, slight knowing smirk — they know something you don't"},
+    {label:'Mood 4 — Joyful',concept:'Joyful Mood',desc:'Radiant, celebratory, infectious.',tags:['Joyful','Bright'],scene:'bright vibrant joyful environment',camera:'front view',composition:'open bright joyful framing',lighting:'bright vibrant warm lighting',pose:'joyful expressive open pose',mood:'radiant, celebratory, infectious joy',expression:'mid-laugh genuine joy, head thrown back, the most beautiful smile — pure light'}
+  ]},
+  musicvideo:{name:'Music Video Concept',tag:'Creator',badge:'✦ Music Video — 4 cinematic shots',variations:[
+    {label:'Scene 1 — Opening',concept:'Opening Scene',desc:'The arrival. Setting the tone.',tags:['Cinematic','Wide'],scene:'cinematic wide establishing environment',camera:'wide cinematic establishing shot',composition:'wide establishing cinematic framing',lighting:'atmospheric cinematic opening, building tension',pose:'arrival pose, stepping into frame with presence',mood:'anticipation, electric tension, the moment before everything begins',expression:'calm composed arrival expression, mysterious — they have arrived and the world will know it'},
+    {label:'Scene 2 — Performance',concept:'Performance Shot',desc:'Full performance, center stage.',tags:['Performance','Energy'],scene:'stage or performance environment',camera:'front view, full body or dramatic close up',composition:'center stage commanding performance framing',lighting:'stage spotlight, dramatic performance lighting',pose:'full performance commanding the stage, peak energy',mood:'electric, magnetic, the whole world is watching',expression:'performance mode — fierce, passionate, transported by the music'},
+    {label:'Scene 3 — Dramatic',concept:'Dramatic Moment',desc:'The climax. Emotional, intense.',tags:['Dramatic','Intense'],scene:'dramatic cinematic emotional environment',camera:'close up or 3/4 intense angle',composition:'intense emotional dramatic framing',lighting:'dramatic cinematic climax lighting, deep shadows',pose:'dramatic emotional intense peak pose',mood:'intense, emotional, the climactic moment that changes everything',expression:'raw emotional intense expression — pain, power, beauty all at once. The unforgettable frame'},
+    {label:'Scene 4 — Final Frame',concept:'Final Frame',desc:'The iconic close. Lasting.',tags:['Final','Iconic'],scene:'iconic closing environment',camera:'cinematic final angle',composition:'iconic final frame — what people remember',lighting:'cinematic golden final lighting',pose:'iconic final signature pose, the image that ends the video',mood:'iconic, lasting impression, this final frame lives forever',expression:'serene victorious final expression — at peace, powerful, the last image burned into memory'}
+  ]},
+  launch:{name:'Business Launch Pack',tag:'Business',badge:'✦ Business Launch — 4 authority shots',variations:[
+    {label:'Shot 1 — Authority',concept:'Authority Shot',desc:'Expert, credible, commanding.',tags:['Authority','Expert'],scene:'professional commanding environment',camera:'front or slight low angle',composition:'authority commanding professional framing',lighting:'professional editorial authority lighting',pose:'authority commanding professional presence',mood:'expert, credible, commanding the respect they have earned',expression:'authoritative serious professional expression — this person knows exactly what they are doing'},
+    {label:'Shot 2 — Behind Scenes',concept:'Behind the Scenes',desc:'Authentic, hard-working.',tags:['BTS','Authentic'],scene:'working creative environment',camera:'candid 3/4 angle',composition:'authentic behind-the-scenes framing',lighting:'natural working environment lighting',pose:'working genuine candid pose',mood:'authentic, hard-working, the real person behind the brand',expression:'focused authentic working expression — genuinely in the zone, this is the real them'},
+    {label:'Shot 3 — Speaking',concept:'Speaking / Teaching',desc:'Teaching, leading, voice.',tags:['Speaking','Leading'],scene:'speaking or teaching environment',camera:'front view, commanding waist up or full',composition:'speaker leader open framing',lighting:'speaking stage or studio lighting',pose:'speaking gesturing teaching passionate pose',mood:'teaching, leading, the voice that people travel to hear',expression:'passionate mid-speech expression, fully alive in this moment'},
+    {label:'Shot 4 — Vision',concept:'Vision Statement',desc:'Aspirational, future-focused.',tags:['Vision','Future'],scene:'aspirational future-forward grand environment',camera:'cinematic full body, looking forward',composition:'aspirational vision statement epic framing',lighting:'inspiring warm aspirational lighting',pose:'visionary forward-looking pose, gazing into the future',mood:'aspirational, future-focused, inspiring a generation',expression:'visionary gaze into the distance, calm and certain — they already see what is coming'}
+  ]},
+  dating:{name:'Dating App Pack',tag:'Personal',badge:'✦ Dating App Pack — 4 profile shots',variations:[
+    {label:'Shot 1 — Profile Hero',concept:'Profile Hero',desc:'Best face forward. Warm, attractive.',tags:['Portrait','Warm'],scene:'clean natural appealing background',camera:'close up, face and shoulders',composition:'flattering portrait framing',lighting:'flattering soft warm natural lighting',pose:'relaxed natural confident pose',mood:'warm, attractive, approachable — the profile picture that gets the matches',expression:'genuine warm attractive smile, bright eyes — real, likeable, beautiful'},
+    {label:'Shot 2 — Lifestyle',concept:'Lifestyle Shot',desc:'Living their best life.',tags:['Lifestyle','Real'],scene:'fun lifestyle environment, doing something they love',camera:'3/4 candid angle',composition:'candid lifestyle real moment',lighting:'natural beautiful lifestyle lighting',pose:'mid-activity natural lifestyle pose',mood:'fun, interesting, a life worth joining',expression:'genuine natural laugh or smile, mid-moment joy — this person is actually fun'},
+    {label:'Shot 3 — Full Body',concept:'Full Body Shot',desc:'Confident, full picture.',tags:['Full Body','Confident'],scene:'appealing casual environment',camera:'full body, flattering angle',composition:'confident full body framing',lighting:'flattering full-body lighting',pose:'confident full body casual pose, comfortable in their skin',mood:'confident, comfortable, attractive in a real and approachable way',expression:'confident relaxed casual expression — genuinely who they are'},
+    {label:'Shot 4 — Personality',concept:'Personality Shot',desc:'This is who they really are.',tags:['Personality','Real'],scene:'environment that reflects their personality',camera:'varied, tells their story',composition:'personality-revealing authentic framing',lighting:'natural authentic lighting',pose:'most authentic personality-revealing pose',mood:'real, interesting, the shot that makes someone say I want to know this person',expression:'most genuine authentic personality expression — laughing, thoughtful, adventurous — truly them'}
+  ]},
+  fitness:{name:'Fitness / Wellness',tag:'Health',badge:'✦ Fitness Collection — 4 wellness shots',variations:[
+    {label:'Shot 1 — Workout',concept:'Workout Shot',desc:'Active, powerful, in motion.',tags:['Active','Power'],scene:'gym, outdoor workout space, or athletic environment',camera:'dynamic action angle, full body',composition:'powerful athletic dynamic framing',lighting:'dramatic athletic lighting, strong and motivating',pose:'mid-workout active power pose, muscles engaged',mood:'powerful, athletic, the body doing what it was built to do',expression:'intense focused workout expression, determined, in the zone'},
+    {label:'Shot 2 — Recovery',concept:'Recovery Shot',desc:'Calm, balanced, self-care glow.',tags:['Calm','Glow'],scene:'calm recovery environment, yoga studio or peaceful setting',camera:'3/4 gentle angle',composition:'peaceful balanced framing',lighting:'soft calming recovery lighting',pose:'gentle recovery pose, stretching or resting',mood:'calm, balanced, the glow of someone who takes care of themselves',expression:'serene peaceful recovery expression, at peace, glowing from within'},
+    {label:'Shot 3 — Transformation',concept:'Transformation Shot',desc:'The result. Proud and strong.',tags:['Result','Strong'],scene:'clean powerful transformation environment',camera:'full body, confident angle',composition:'transformation power result framing',lighting:'clean powerful result lighting',pose:'proud strong transformation pose, showing the result',mood:'proud, strong, the result of every early morning and hard choice',expression:'proud powerful expression, jaw set, eyes confident — this is what showing up looks like'},
+    {label:'Shot 4 — Wellness Hero',concept:'Wellness Hero',desc:'Glowing, balanced, inspiring.',tags:['Wellness','Inspiring'],scene:'beautiful inspiring wellness environment',camera:'cinematic full body or beauty close up',composition:'inspiring wellness hero framing',lighting:'beautiful glowing wellness lighting',pose:'inspiring wellness hero pose, radiating health',mood:'glowing, balanced, the embodiment of wellness as a lifestyle',expression:'radiant glowing expression, the look of someone who is truly well — inside and out'}
+  ]}
+};
+
+let _cdActive=false;
+let _cdProgress=0;
+let _cdMixOpen=false;
+const CD_SHOT_COLORS=['#c0547a','#D4AF37','#8b6bb5','#1a8a6e'];
+const CD_TAGS=['All','Fashion','Business','Creator','Personal','Story','Fun','Kids','Creative','Health'];
+
+function toggleCDMode(){
+  const cb=$('cdToggle'),opts=$('cdOptions'),badge=$('cdBadge');
+  _cdActive=cb.checked;
+  opts.classList.toggle('open',_cdActive);
+  badge.textContent=_cdActive?'ON':'OFF';
+  badge.classList.toggle('on',_cdActive);
+  if(_cdActive){const vs=$('variations');if(vs){vs.value=4;$('varVal').textContent='4';$('varDisplay').textContent='4';}updateCDPlan();}
+}
+function toggleCDMix(){_cdMixOpen=!_cdMixOpen;const p=$('cdMixPanel');if(p)p.style.display=_cdMixOpen?'block':'none';}
+
+function renderCDCollectionSelect(activeTag){
+  const sel=$('cdCollectionType');if(!sel)return;
+  const current=sel.value;
+  sel.innerHTML='';
+  Object.entries(CD_COLLECTIONS).forEach(([k,c])=>{
+    if(activeTag&&activeTag!=='All'&&c.tag!==activeTag)return;
+    const opt=document.createElement('option');
+    opt.value=k;opt.textContent=`${c.name} (${c.tag})`;
+    if(k===current)opt.selected=true;
+    sel.appendChild(opt);
+  });
+  if(!sel.value&&sel.options.length)sel.selectedIndex=0;
+  updateCDPlan();
+}
+
+function updateCDPlan(){
+  const type=$('cdCollectionType')?$('cdCollectionType').value:'editorial';
+  const col=CD_COLLECTIONS[type];if(!col)return;
+  const badge=$('cdActiveBadge');if(badge)badge.textContent=col.badge;
+  const ethnicity=$('ethnicityA')?$('ethnicityA').value:'';
+  const age=$('ageA')?$('ageA').value:'';
+  const gender=$('genderA')?$('genderA').value:'female';
+  const charRef=age&&ethnicity?`your ${age} ${ethnicity} ${gender}`:'your character';
+  const grid=$('cdShotsGrid');
+  if(grid){grid.innerHTML=col.variations.map((v,i)=>`<div class="cd-shot-card" style="animation-delay:${i*0.06}s;border-top:3px solid ${CD_SHOT_COLORS[i]}"><div class="cd-shot-num" style="color:${CD_SHOT_COLORS[i]}">${v.label}</div><div class="cd-shot-name">${v.concept}</div><div class="cd-shot-desc">${v.desc} <em style="color:var(--text3);font-size:0.67rem">— ${charRef}</em></div><div class="cd-shot-tags">${(v.tags||[]).map(t=>`<span class="cd-shot-tag">${t}</span>`).join('')}</div><div style="font-size:0.67rem;color:var(--text3);margin-top:5px;font-style:italic;line-height:1.4">Expression: ${v.expression.substring(0,65)}...</div></div>`).join('');}
+  const mg=$('cdMixGrid');
+  if(mg){const allOpts=Object.entries(CD_COLLECTIONS).map(([k,c])=>c.variations.map((v,i)=>`<option value="${k}:${i}">[${c.name}] ${v.concept}</option>`).join('')).join('');mg.innerHTML=col.variations.map((v,i)=>`<div style="display:flex;flex-direction:column;gap:5px"><span style="font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--text2);font-weight:600">Slot ${i+1}</span><select id="cdMixSlot${i}" style="font-size:0.75rem;padding:8px 12px"><option value="${type}:${i}" selected>[Current] ${v.concept}</option>${allOpts}</select></div>`).join('');}
+  const tagWrap=$('cdTagFilter');
+  if(tagWrap&&!tagWrap.children.length){CD_TAGS.forEach(tag=>{const btn=document.createElement('button');btn.textContent=tag;btn.style.cssText="padding:4px 12px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:0.68rem;cursor:pointer;transition:all 0.15s;margin-right:6px;margin-bottom:6px;";btn.onclick=()=>{tagWrap.querySelectorAll('button').forEach(b=>{b.style.background='transparent';b.style.borderColor='var(--border)';b.style.color='var(--text2)';});btn.style.background='rgba(192,84,122,0.1)';btn.style.borderColor='var(--gold)';btn.style.color='var(--gold)';renderCDCollectionSelect(tag);};if(tag==='All'){btn.style.background='rgba(192,84,122,0.1)';btn.style.borderColor='var(--gold)';btn.style.color='var(--gold)';}tagWrap.appendChild(btn);});}
+}
+
+function updateCDProgress(varIdx){
+  if(!_cdActive)return;
+  _cdProgress=Math.max(_cdProgress,varIdx+1);
+  for(let i=0;i<4;i++){const d=$('cdDot'+i);if(d)d.classList.toggle('done',i<_cdProgress);}
+  const l=$('cdProgressText');if(l)l.textContent=`${_cdProgress} of 4 shots generated`;
+  const b=$('cdCompleteBadge');if(b)b.classList.toggle('show',_cdProgress>=4);
+}
+function resetCDProgress(){
+  _cdProgress=0;
+  for(let i=0;i<4;i++){const d=$('cdDot'+i);if(d)d.classList.remove('done');}
+  const l=$('cdProgressText');if(l)l.textContent='0 of 4 shots generated';
+  const b=$('cdCompleteBadge');if(b)b.classList.remove('show');
+  showToast('Progress reset ✦');
+}
+
+function buildCDPrompt(basePrompt,varIdx,collectionType){
+  const type=$('cdCollectionType')?$('cdCollectionType').value:collectionType;
+  let resolvedType=type,resolvedIdx=varIdx;
+  const ms=$('cdMixSlot'+varIdx);
+  if(ms&&ms.value&&ms.value.includes(':')){const p=ms.value.split(':');resolvedType=p[0];resolvedIdx=parseInt(p[1]);}
+  const col=CD_COLLECTIONS[resolvedType];
+  if(!col||!col.variations[resolvedIdx])return basePrompt;
+  const v=col.variations[resolvedIdx];
+  const notes=$('cdNotes')?$('cdNotes').value.trim():'';
+  let p=`${col.name.toUpperCase()} — ${v.label}\n`;
+  p+=`SHOT CONCEPT: ${v.concept} — ${v.desc}\n\n`;
+  p+=basePrompt;
+  p+=`\n\nCREATIVE DIRECTOR DIRECTION — "${v.concept}"`;
+  p+=`\nSCENE: ${v.scene}`;
+  p+=`\nCAMERA: ${v.camera}`;
+  p+=`\nCOMPOSITION: ${v.composition}`;
+  p+=`\nLIGHTING: ${v.lighting}`;
+  p+=`\nPOSE: ${v.pose}`;
+  p+=`\nEXPRESSION & ENERGY: ${v.expression}`;
+  p+=`\nMOOD: ${v.mood}`;
+  p+=`\nCONSISTENCY: Maintain exact same outfit, shoes, accessories, nails, hair, and facial features across all shots in this ${col.name}. Only expression, pose, scene, and lighting change per shot.`;
+  if(notes)p+=`\nCOLLECTION VISION: ${notes}`;
+  // Per-shot director's note
+  const shotNote=$(`cdNote_${varIdx}`)?$(`cdNote_${varIdx}`).value.trim():'';
+  if(shotNote)p+=`\nDIRECTOR'S NOTE FOR THIS SHOT: ${shotNote}`;
+  updateCDProgress(varIdx);
+  return p;
+}
+/* ══ CONSISTENT CHARACTER MODE ══ */
+const CC_KEY = 'imageEnvyCCProfiles';
+let _activeCCDNA = null; // { name, brief }
+
+function getCCProfiles(){ try{ return JSON.parse(localStorage.getItem(CC_KEY)||'[]'); }catch(e){ return []; } }
+function saveCCProfiles(l){ try{ localStorage.setItem(CC_KEY, JSON.stringify(l)); }catch(e){} }
+
+function buildCCBrief() {
+  // Capture current character A settings into a written brief
+  const gender     = $('genderA')     ? $('genderA').value     : 'female';
+  const ethnicity  = $('ethnicityA')  ? $('ethnicityA').value  : '';
+  const skin       = $('skinA')       ? $('skinA').value       : '';
+  const age        = $('ageA')        ? $('ageA').value        : '';
+  const height     = $('heightA')     ? $('heightA').value     : '';
+  const body       = $('bodyA')       ? $('bodyA').value       : '';
+  const eyeColor   = $('eyeA')        ? $('eyeA').value        : '';
+  const expression = $('expressionA') ? $('expressionA').value : '';
+  const isMale     = gender === 'male';
+  const aC         = isMale ? appearanceCatsMale : appearanceCats;
+  const hairStyle  = getCatVal(aC,'A','hair_style');
+  const hairColor  = getCatVal(aC,'A','hair_color');
+  const skinTex    = getCatVal(aC,'A','skin_texture');
+  const face       = getCatVal(aC,'A','face');
+  const glam       = getCatVal(aC,'A','glam');
+  const piercings  = getCatVal(aC,'A','piercings');
+  const makeup     = isMale ? '' : getCatVal(appearanceCats,'A','makeup');
+  const tattoos    = getCatVal(aC,'A','tattoos');
+  const oC         = isMale ? outfitCatsMale : outfitCats;
+  const outfit     = getCatVal(oC,'A','outfit');
+  const shoes      = getCatVal(oC,'A','shoes');
+  const nailShape  = getCatVal(oC,'A','nail_shape');
+  const nails      = getCatVal(oC,'A','nails');
+  const jewelry    = getCatVal(oC,'A','jewelry');
+
+  const parts = [
+    age && gender ? `${age} ${gender}` : '',
+    ethnicity ? `${ethnicity} ethnicity` : '',
+    skin ? `${skin} skin tone` : '',
+    skinTex ? `${skinTex}` : '',
+    hairStyle || hairColor ? [hairStyle,hairColor].filter(Boolean).join(' ')+' hair' : '',
+    eyeColor ? `${eyeColor} eyes` : '',
+    face ? face : '',
+    makeup ? makeup : '',
+    glam ? glam : '',
+    piercings ? piercings : '',
+    tattoos ? tattoos : '',
+    outfit ? `wearing ${outfit}` : '',
+    shoes ? shoes : '',
+    nailShape || nails ? [nailShape,nails].filter(Boolean).join(' ')+' nails' : '',
+    jewelry ? jewelry : '',
+    expression ? `${expression} expression` : '',
+  ].filter(Boolean);
+
+  return parts.join(', ');
+}
+
+function saveCCProfile() {
+  const name = ($('ccName').value || '').trim();
+  if (!name) { $('ccName').focus(); showToast('Enter a character name first'); return; }
+  const brief = buildCCBrief();
+  if (!brief) { showToast('Fill in character details first'); return; }
+  const profiles = getCCProfiles();
+  const idx = profiles.findIndex(p => p.name === name);
+  if (idx >= 0) { profiles[idx] = { name, brief }; }
+  else { profiles.push({ name, brief }); }
+  saveCCProfiles(profiles);
+  $('ccName').value = '';
+  renderCCProfiles();
+  // Auto-activate the saved one
+  activateCCProfile(name);
+  showToast(`💾 ${name} DNA saved ✦`);
+}
+
+function activateCCProfile(name) {
+  const profiles = getCCProfiles();
+  const p = profiles.find(p => p.name === name);
+  if (!p) return;
+  _activeCCDNA = p;
+  // Update active summary
+  const sumEl = $('ccActiveSummary');
+  if (sumEl) sumEl.textContent = `${p.name}: ${p.brief}`;
+  $('ccActiveDNA').classList.remove('hidden');
+  renderCCProfiles();
+  showToast(`🧬 ${name} locked in ✦`);
+}
+
+function clearActiveDNA() {
+  _activeCCDNA = null;
+  $('ccActiveDNA').classList.add('hidden');
+  renderCCProfiles();
+  showToast('DNA lock cleared');
+}
+
+function deleteCCProfile(name) {
+  const profiles = getCCProfiles().filter(p => p.name !== name);
+  saveCCProfiles(profiles);
+  if (_activeCCDNA && _activeCCDNA.name === name) clearActiveDNA();
+  renderCCProfiles();
+  showToast('Character removed');
+}
+
+function renderCCProfiles() {
+  const el = $('ccProfiles'); if (!el) return;
+  const profiles = getCCProfiles();
+  if (!profiles.length) {
+    el.innerHTML = '<span style="font-size:0.75rem;color:var(--text3);font-style:italic">No saved characters yet — fill in the fields below and save.</span>';
+    return;
+  }
+  el.innerHTML = profiles.map(p => `
+    <div class="cc-chip${_activeCCDNA && _activeCCDNA.name === p.name ? ' active' : ''}" onclick="activateCCProfile('${p.name.replace(/'/g,"\\'")}')">
+      🧬 ${p.name}
+      ${_activeCCDNA && _activeCCDNA.name === p.name ? '<span style="font-size:0.6rem;color:var(--gold)">● LOCKED</span>' : ''}
+      <span class="cc-del" onclick="event.stopPropagation();deleteCCProfile('${p.name.replace(/'/g,"\\'")}')">✕</span>
+    </div>`).join('');
+}
+
+/* ══ SQUAD MODE ══ */
+const SQUAD_SKIN_OPTIONS = ['porcelain','fair','beige','olive','caramel','mocha','deep brown','espresso','rich cocoa brown','honey brown'];
+const SQUAD_HAIR_OPTIONS = ['90s finger waves','bantu knots','bald','bangs','beach waves','blonde ombre','blow out','blunt bob','braided updo','braids','bun','buzz cut','cornrows','curly afro','fade','finger waves','french bob','high ponytail','honey blonde waves','kinky coils','knotless braids','layered curls','lob','locs','loose curls','low bun','low fade','messy bun','middle part','mohawk','natural afro','pageboy','pixie cut','platinum bob','senegalese twists','shaved sides','short curls','side part','silk press','sleek bun','sleek ponytail','slick back','space buns','straight','taper fade','twist out','twists','wavy lob','waves 360','wispy bangs'];
+const SQUAD_OUTFIT_OPTIONS = ['athleisure','baggy jeans and crop top','blazer set','bodycon dress','bomber jacket','business casual','cargo pants outfit','casual chic','cocktail dress','colorblock outfit','coord set','crop top and skirt','denim outfit','designer set','editorial fashion','floral dress','glam streetwear','hoodie set','jumpsuit','leather look','linen set','luxury casual','maxi dress','midi dress','mini dress','monochrome set','oversized fashion','party look','power suit','satin set','sequin outfit','soft girl aesthetic','sporty chic','streetwear','sundress','tracksuit','trench coat look','two piece set','vintage inspired','y2k style'];
+const SQUAD_VIBE_OPTIONS = ['adventurous','artistic','boss energy','bubbly','calm','charismatic','classy','confident','creative','dreamy','edgy','elegant','energetic','fierce','fun','glamorous','graceful','mysterious','playful','powerful','quirky','radiant','romantic','sassy','soft','sophisticated','spontaneous','sweet','vibrant','warm'];
+
+const SQUAD_MEMBER_COLORS = ['#c0547a','#D4AF37','#8b6bb5','#1a8a6e','#d4603a','#1a6eaa'];
+
+function buildSquadMemberRow(i) {
+  const num = i + 1;
+  const color = SQUAD_MEMBER_COLORS[i % SQUAD_MEMBER_COLORS.length];
+
+  const skinOpts = SQUAD_SKIN_OPTIONS.map(o => `<option>${o}</option>`).join('');
+  const hairOpts = SQUAD_HAIR_OPTIONS.map(o => `<option>${o}</option>`).join('');
+  const outfitOpts = SQUAD_OUTFIT_OPTIONS.map(o => `<option>${o}</option>`).join('');
+  const vibeOpts = SQUAD_VIBE_OPTIONS.map(o => `<option>${o}</option>`).join('');
+
+  return `<div class="squad-member" id="squadMember_${i}">
+    <div class="squad-member-header">
+      <div class="squad-num" style="background:${color}22;color:${color};border-color:${color}55">${num}</div>
+      <span class="squad-member-title">Character ${num}</span>
+    </div>
+    <div class="squad-grid">
+      <div class="field-wrap">
+        <label class="field-label">Gender</label>
+        <select id="squad_gender_${i}"><option>female</option><option>male</option></select>
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">Ethnicity</label>
+        <select id="squad_ethnicity_${i}">
+          <option>Black</option><option>White</option><option>Latina</option><option>Asian</option>
+          <option>Mixed Race</option><option>Middle Eastern</option><option>Indigenous</option><option>South Asian</option>
+        </select>
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">Skin Tone</label>
+        <select id="squad_skin_${i}">${skinOpts}</select>
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">Hair Style</label>
+        <select id="squad_hair_${i}">${hairOpts}</select>
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">Outfit</label>
+        <select id="squad_outfit_${i}">${outfitOpts}</select>
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">Vibe / Personality</label>
+        <select id="squad_vibe_${i}">${vibeOpts}</select>
+      </div>
+    </div>
+  </div>`;
+}
+
+function randomizeSquad(){
+  const count=parseInt($('squadSize').value)||3;
+  const rndOpt=sel=>{if(sel)sel.selectedIndex=Math.floor(Math.random()*sel.options.length);};
+  for(let i=0;i<count;i++){
+    rndOpt($(`squad_gender_${i}`));
+    rndOpt($(`squad_ethnicity_${i}`));
+    rndOpt($(`squad_skin_${i}`));
+    rndOpt($(`squad_hair_${i}`));
+    rndOpt($(`squad_outfit_${i}`));
+    rndOpt($(`squad_vibe_${i}`));
+  }
+  showToast('⟳ Squad randomized ✦');
+}
+
+function buildSquadMembers(count) {
+  const wrap = $('squadMembers');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    wrap.innerHTML += buildSquadMemberRow(i);
+  }
+}
+
+function updateSquadSize(val) {
+  $('squadSizeVal').textContent = val;
+  $('squadSizeDisplay').textContent = val;
+  buildSquadMembers(parseInt(val));
+}
+
+function buildSquadPrompt(style, finish, ratio) {
+  const count     = parseInt($('squadSize').value) || 3;
+  const arr       = $('squadArrangement') ? $('squadArrangement').value : 'standing side by side';
+  const vibe      = $('squadVibe')        ? $('squadVibe').value        : 'best friends forever';
+  const coord     = $('squadCoord')       ? $('squadCoord').value       : 'coordinated outfits';
+  const leader    = $('squadLeader')      ? $('squadLeader').value      : 'none — equal focus';
+  const theme     = $('squadOutfitTheme') ? $('squadOutfitTheme').value : 'none — individual outfits';
+  const scene     = getCatVal(sceneCats,'shared','scene') || 'solid white background';
+  const camera    = getCatVal(sceneCats,'shared','camera') || 'front view';
+  const lighting  = getCatVal(sceneCats,'shared','lighting') || 'studio lighting';
+  const era       = getCatVal(sceneCats,'shared','era') || 'modern day';
+  const quality   = getCatVal(qualityCats,'shared','quality') || '';
+  const neg       = $('negativePrompt') ? $('negativePrompt').value.trim() : '';
+
+  // Build each character description
+  const members = [];
+  for (let i = 0; i < count; i++) {
+    const gender    = $(`squad_gender_${i}`)    ? $(`squad_gender_${i}`).value    : 'female';
+    const ethnicity = $(`squad_ethnicity_${i}`) ? $(`squad_ethnicity_${i}`).value : 'Black';
+    const skin      = $(`squad_skin_${i}`)      ? $(`squad_skin_${i}`).value      : 'deep brown';
+    const hair      = $(`squad_hair_${i}`)      ? $(`squad_hair_${i}`).value      : '';
+    const outfit    = $(`squad_outfit_${i}`)    ? $(`squad_outfit_${i}`).value    : '';
+    const memberVibe= $(`squad_vibe_${i}`)      ? $(`squad_vibe_${i}`).value      : '';
+    members.push(`Character ${i+1}: ${gender}, ${ethnicity} ethnicity, ${skin} skin${hair?`, ${hair} hair`:''}${outfit?`, wearing ${outfit}`:''}${memberVibe?`, ${memberVibe} energy`:''}`)
+  }
+
+  let p = `A clean, professional group portrait. A ${finish}, ultra-edgy ${style} style illustration featuring a squad of ${count} characters.\n\n`;
+  p += members.join('\n') + '\n\n';
+  p += `Squad arrangement: ${arr}. Squad vibe: ${vibe}. Coordination style: ${coord}.\n`;
+  if(theme!=='none — individual outfits')p+=`Outfit theme: ${theme}.\n`;
+  if(leader!=='none — equal focus')p+=`Focal character: ${leader} — make them slightly more prominent in the composition.\n`;
+  p += `Scene: Place all ${count} characters in a ${scene}, captured from a ${camera}, with ${lighting}. Time era: ${era}.\n`;
+  if (quality) p += `${quality}.\n`;
+  p += `\nIMPORTANT: Show all ${count} characters clearly and distinctly. No merged faces, no missing characters, no duplicate limbs. Every character must be fully visible and individually recognizable. Keep all characters in the same frame.\n`;
+  p += `\nAspect ratio: ${ratio}. Art style: ${style}, bold outlines, ultra-smooth airbrushed shading, soft highlights and luminous glow.`;
+  if (neg) p += `\n\n[NEGATIVE PROMPT] ${neg}`;
+
+  return p;
+}
+
+/* ═══ SHOWCASE GALLERY JS — remove with showcase block to hide ═══
+   To add your own characters:
+   1. Build a character in the generator
+   2. Copy the settings you want to showcase
+   3. Add a new entry to SHOWCASE_CHARACTERS below
+   4. Add your AI image URL to the 'image' field (or leave as '' for placeholder)
+═══════════════════════════════════════════════════════════════════ */
+const SHOWCASE_CHARACTERS = [
+  {
+    name: 'The CEO',
+    badge: 'Single Character',
+    desc: 'Adult Black female · Espresso skin · Platinum braids · Boss energy',
+    image: '', // paste your image URL here e.g. 'https://i.imgur.com/yourimage.jpg'
+    settings: {
+      genderA:'female', ethnicityA:'Black', skinA:'espresso', ageA:'adult',
+      heightA:'tall', bodyA:'slim', eyeA:'brown', expressionA:'confident',
+      cartoonType:'glossy 3d chibi', artFinish:'ultra glossy', aspectRatio:'4:5 portrait'
+    }
+  },
+  {
+    name: 'Street Queen',
+    badge: 'Single Character',
+    desc: 'Young adult Black female · Deep brown skin · Braids · Street royalty',
+    image: '',
+    settings: {
+      genderA:'female', ethnicityA:'Black', skinA:'deep brown', ageA:'young adult',
+      heightA:'average', bodyA:'curvy', eyeA:'brown', expressionA:'serious',
+      cartoonType:'glossy 3d chibi', artFinish:'ultra glossy', aspectRatio:'4:5 portrait'
+    }
+  },
+  {
+    name: 'The Soft Girl',
+    badge: 'Single Character',
+    desc: 'Young adult Mixed Race · Caramel skin · Loose curls · Dreamy vibes',
+    image: '',
+    settings: {
+      genderA:'female', ethnicityA:'Mixed Race', skinA:'caramel', ageA:'young adult',
+      heightA:'short', bodyA:'petite', eyeA:'hazel', expressionA:'smiling',
+      cartoonType:'signature exaggerated chibi', artFinish:'soft glow', aspectRatio:'4:5 portrait'
+    }
+  },
+  {
+    name: 'The King',
+    badge: 'Single Character',
+    desc: 'Adult Black male · Deep brown skin · Waves 360 · Luxury boss',
+    image: '',
+    settings: {
+      genderA:'male', ethnicityA:'Black', skinA:'deep brown', ageA:'adult',
+      heightA:'tall', bodyA:'athletic', eyeA:'brown', expressionA:'confident',
+      cartoonType:'glossy 3d chibi', artFinish:'ultra glossy', aspectRatio:'4:5 portrait'
+    }
+  },
+  {
+    name: 'The Goddess',
+    badge: 'Single Character',
+    desc: 'Adult Black female · Rich cocoa brown · Silver lavender locs · Ethereal',
+    image: '',
+    settings: {
+      genderA:'female', ethnicityA:'Black', skinA:'espresso', ageA:'adult',
+      heightA:'tall', bodyA:'curvy', eyeA:'amber', expressionA:'soft glam',
+      cartoonType:'soft spiritual glow', artFinish:'soft glow', aspectRatio:'4:5 portrait'
+    }
+  },
+  {
+    name: 'Best Friends',
+    badge: 'Double Character',
+    desc: 'Two Black females · Matching glam · Boss duo energy',
+    image: '',
+    settings: {
+      genderA:'female', ethnicityA:'Black', skinA:'espresso', ageA:'adult',
+      heightA:'average', bodyA:'curvy', eyeA:'brown', expressionA:'confident',
+      cartoonType:'glossy 3d chibi', artFinish:'ultra glossy', aspectRatio:'1:1 square',
+      mode:'Double Character'
+    }
+  },
+];
+
+const SHOWCASE_IMG_KEY = 'imageEnvyShowcaseImages';
+
+function getShowcaseImages() {
+  try { return JSON.parse(localStorage.getItem(SHOWCASE_IMG_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveShowcaseImages(obj) {
+  try { localStorage.setItem(SHOWCASE_IMG_KEY, JSON.stringify(obj)); } catch(e) {
+    showToast('Image too large for storage — try a smaller file');
+  }
+}
+
+function buildShowcase() {
+  const grid = $('showcaseGrid');
+  if (!grid) return;
+  if (!SHOWCASE_CHARACTERS.length) { const sec=$('showcaseSection'); if(sec) sec.style.display='none'; return; }
+  const saved = getShowcaseImages();
+  grid.innerHTML = SHOWCASE_CHARACTERS.map((char, i) => {
+    const imgSrc = saved[i] || char.image || '';
+    return `
+    <div class="showcase-card" id="showcaseCard_${i}">
+      <!-- Hidden file input -->
+      <input type="file" accept="image/*" id="showcaseFile_${i}" style="display:none" onchange="handleShowcaseUpload(${i}, this)">
+      <div class="showcase-badge">${char.badge}</div>
+      <!-- Remove image button -->
+      <button class="showcase-remove-btn" onclick="event.stopPropagation();removeShowcaseImage(${i})" title="Remove image">✕</button>
+      <!-- Upload button -->
+      <button class="showcase-upload-btn" onclick="event.stopPropagation();$('showcaseFile_${i}').click()" title="Upload your AI image">📷</button>
+      <!-- Image or placeholder -->
+      ${imgSrc
+        ? `<img class="showcase-img" id="showcaseImg_${i}" src="${imgSrc}" alt="${char.name}" loading="lazy"/>`
+        : `<div class="showcase-placeholder" id="showcasePlaceholder_${i}">
+             <div class="showcase-placeholder-icon">📷</div>
+             <div class="showcase-placeholder-text">Click 📷 to add your AI image</div>
+           </div>`
+      }
+      <!-- Overlay with load button -->
+      <div class="showcase-overlay" onclick="loadShowcaseChar(${i})">
+        <div class="showcase-char-name">${char.name}</div>
+        <div class="showcase-char-desc">${char.desc}</div>
+        <button class="showcase-load-btn" onclick="event.stopPropagation();loadShowcaseChar(${i})">⟳ Load Character</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function handleShowcaseUpload(i, input) {
+  const file = input.files[0];
+  if (!file) return;
+  // Compress image before storing
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      // Resize to max 600px wide for storage efficiency
+      const canvas = document.createElement('canvas');
+      const maxW = 600;
+      const ratio = Math.min(maxW / img.width, 1);
+      canvas.width  = Math.round(img.width  * ratio);
+      canvas.height = Math.round(img.height * ratio);
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const compressed = canvas.toDataURL('image/jpeg', 0.82);
+      // Save to localStorage
+      const saved = getShowcaseImages();
+      saved[i] = compressed;
+      saveShowcaseImages(saved);
+      // Update the card immediately
+      const card = $(`showcaseCard_${i}`);
+      if (card) {
+        // Replace placeholder with image
+        const placeholder = $(`showcasePlaceholder_${i}`);
+        if (placeholder) placeholder.remove();
+        let imgEl = $(`showcaseImg_${i}`);
+        if (!imgEl) {
+          imgEl = document.createElement('img');
+          imgEl.className = 'showcase-img';
+          imgEl.id = `showcaseImg_${i}`;
+          imgEl.alt = SHOWCASE_CHARACTERS[i].name;
+          card.insertBefore(imgEl, card.querySelector('.showcase-overlay'));
+        }
+        imgEl.src = compressed;
+      }
+      showToast('✦ Image saved to showcase!');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  input.value = ''; // reset so same file can be re-uploaded
+}
+
+function removeShowcaseImage(i) {
+  const saved = getShowcaseImages();
+  delete saved[i];
+  saveShowcaseImages(saved);
+  // Reset card to placeholder
+  const imgEl = $(`showcaseImg_${i}`);
+  if (imgEl) imgEl.remove();
+  const card = $(`showcaseCard_${i}`);
+  if (card) {
+    const overlay = card.querySelector('.showcase-overlay');
+    const placeholder = document.createElement('div');
+    placeholder.className = 'showcase-placeholder';
+    placeholder.id = `showcasePlaceholder_${i}`;
+    placeholder.innerHTML = '<div class="showcase-placeholder-icon">📷</div><div class="showcase-placeholder-text">Click 📷 to add your AI image</div>';
+    card.insertBefore(placeholder, overlay);
+  }
+  showToast('Image removed');
+}
+
+function loadShowcaseChar(i) {
+  const char = SHOWCASE_CHARACTERS[i];
+  if (!char || !char.settings) return;
+  const s = char.settings;
+
+  // Set mode first
+  if (s.mode && $('mode')) {
+    $('mode').value = s.mode;
+    $('mode').dispatchEvent(new Event('change'));
+  }
+  // Set global settings
+  if (s.cartoonType  && $('cartoonType'))  $('cartoonType').value  = s.cartoonType;
+  if (s.artFinish    && $('artFinish'))    $('artFinish').value    = s.artFinish;
+  if (s.aspectRatio  && $('aspectRatio'))  $('aspectRatio').value  = s.aspectRatio;
+  // Set identity fields
+  setTimeout(() => {
+    const fields = ['genderA','ethnicityA','skinA','ageA','heightA','bodyA','eyeA','expressionA'];
+    fields.forEach(f => { if(s[f] && $(f)) $(f).value = s[f]; });
+    if (s.genderA) buildCharSections('A');
+    addIdentityLocks('A');
+    // Scroll to generator smoothly
+    const genCard = document.querySelector('.card');
+    if (genCard) genCard.scrollIntoView({ behavior:'smooth', block:'start' });
+    showToast(`✦ ${char.name} loaded — customize below`);
+  }, 100);
+}
+/* ═══ END SHOWCASE GALLERY JS ═══ */
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded',()=>{
+  initTheme();
+  buildShowcase();
+  buildCharSections('A');
+  buildSection('sceneFields',sceneCats,'shared');
+  buildSection('qualityFields',qualityCats,'shared');
+  // Default scene to solid white
+  setTimeout(()=>{const b=$('body_shared_scene');if(b){const cbs=b.querySelectorAll('input[type=checkbox]');const anyChecked=[...cbs].some(c=>c.checked);if(!anyChecked&&cbs[0])cbs[0].checked=true;}},100);
+  renderPresets();renderHistory();buildNegChips();renderCCProfiles();
+  addIdentityLocks('A');wireMicroAnimations();initMobileSticky();updateCDPlan();
+});
+
+/* Sparkles */
+const sparklesEl=document.getElementById('sparkles');
+for(let i=0;i<30;i++){const s=document.createElement('div');s.className='sparkle';s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${2+Math.random()*5}s;--delay:${Math.random()*6}s;`;sparklesEl.appendChild(s);}
+
+</script>
+</body>
+</html>
